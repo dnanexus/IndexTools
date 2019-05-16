@@ -6,8 +6,8 @@ from typing import Optional, Tuple
 import autoclick as ac
 import pysam
 
-from idxtools.bed import BedInterval, iter_bed_interval_groups
-from idxtools.utils import References, split_path
+from indextools.bed import BedInterval, iter_bed_interval_groups
+from indextools.utils import References, split_path
 
 
 class FeatureInclusion(enum.Enum):

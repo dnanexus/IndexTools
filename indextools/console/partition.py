@@ -4,11 +4,11 @@ TODO: allow for custom partition naming
 import pathlib
 from typing import Callable, List, Optional, cast
 
-from idxtools.bed import write_intervals_bed
-from idxtools.index import IntervalGrouping, group_intervals
-from idxtools.intervals import GenomeInterval
-from idxtools.regions import Regions
-from idxtools.utils import References, split_path
+from indextools.bed import write_intervals_bed
+from indextools.index import IntervalGrouping, group_intervals
+from indextools.intervals import GenomeInterval
+from indextools.regions import Regions
+from indextools.utils import References, split_path
 
 import autoclick as ac
 from ngsindex import IndexType, CoordinateIndex, resolve_index_file, parse_index

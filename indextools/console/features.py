@@ -3,8 +3,8 @@ from typing import Optional
 import autoclick as ac
 import pysam
 
-from idxtools.bed import GenomeInterval, iter_bed_intervals, write_intervals_bed
-from idxtools.utils import replace_suffix
+from indextools.bed import GenomeInterval, iter_bed_intervals, write_intervals_bed
+from indextools.utils import replace_suffix
 
 
 def features(

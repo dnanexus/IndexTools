@@ -37,7 +37,7 @@ from typing import (
     cast,
 )
 
-from idxtools.utils import OrderedSet
+from indextools.utils import OrderedSet
 
 from ngsindex.utils import DefaultDict
 

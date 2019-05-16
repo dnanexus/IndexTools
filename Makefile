@@ -1,5 +1,5 @@
 repo = dnanexus/IndexTools
-package = idxtools
+package = indextools
 version = 0.1.0
 tests = tests
 
@@ -48,9 +48,7 @@ release:
 	# build
 	$(BUILD)
 	#$(TEST)
-	python setup.py sdist bdist_wheel
-	# release
-	python setup.py sdist upload -r pypi
+	poetry publish
 	# push new tag after successful build
 	git push origin --tags
 	# create release in GitHub
@@ -59,4 +57,3 @@ release:
 		-H "Authorization: token $(token)" \
 		https://api.github.com/repos/$(repo)/releases \
 		-d '{"tag_name":"$(version)","target_commitish": "master","name": "$(version)","body": "$(desc)","draft": false,"prerelease": false}'
-

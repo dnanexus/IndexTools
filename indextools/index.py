@@ -3,9 +3,9 @@ import math
 import statistics
 from typing import Iterator, List, Optional, Sequence, Tuple, Union, Iterable
 
-from idxtools.intervals import GenomeInterval, IVL
-from idxtools.regions import Regions
-from idxtools.utils import References
+from indextools.intervals import GenomeInterval, IVL
+from indextools.regions import Regions
+from indextools.utils import References
 
 from ngsindex import CoordinateIndex, Offset
 

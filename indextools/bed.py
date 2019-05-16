@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 from typing import Callable, Iterable, Iterator, Optional, Sequence, Union, Tuple
 
-from idxtools.intervals import GenomeInterval
+from indextools.intervals import GenomeInterval
 
 from xphyle import STDOUT, open_
 from xphyle.utils import read_delimited

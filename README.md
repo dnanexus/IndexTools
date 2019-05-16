@@ -5,7 +5,7 @@ Common index formats, such as BAM Index (BAI) and Tabix (TBI), contain coarse-gr
 ## Installation
 
 ```bash
-pip install idxtools
+pip install indextools
 ```
 
 ## Commands
@@ -16,7 +16,7 @@ The `partition` command processes a BAM index file and generates a file in BED f
 
 ```bash
 # Generate a BED with 10 partitions
-idxtools partition -I tests/data/small.bam.bai \
+indextools partition -I tests/data/small.bam.bai \
   -z tests/data/contig_sizes.txt \
   -n 10 \
   -o small.partitions.bed

@@ -1,12 +1,12 @@
 """IndexTools command line interface.
 """
-from idxtools.console import (
+from indextools.console import (
     partition,
     features,
     split,
     commands
 )
-from idxtools.regions import Regions, parse_region
+from indextools.regions import Regions, parse_region
 
 import autoclick as ac
 
@@ -47,13 +47,13 @@ ac.composite_type(
 
 
 @ac.group()
-def idxtools():
+def indextools():
     pass
 
 
 # Partition genomic regions based on read density estimated
 # from an index.
-idxtools.command(
+indextools.command(
     decorated=partition.partition,
     types={
         "slop": ac.DelimitedList(int)
@@ -70,14 +70,14 @@ idxtools.command(
 
 # Count the features (e.g. reads, variants) in a primary file
 # within partitions (e.g. output by the 'partition' command).
-idxtools.command(
+indextools.command(
     decorated=features.features
 )
 
 
 # Split a primary file (e.g. BAM, VCF) into chunks based on
 # a partition BED file (e.g. output by the 'partition' command).
-idxtools.command(
+indextools.command(
     decorated=split.split,
     types={
         "slop": ac.DelimitedList(int)
@@ -93,12 +93,12 @@ idxtools.command(
 
 # Generate a list commands, one per partition, given a template
 # and a partition BED file (e.g. output by the 'partition' command).
-# idxtools.command(
+# indextools.command(
 #    decorated=commands.commands
 # )
 
 
 #
-# idxtools.command(
+# indextools.command(
 #     decorated=run
 # )

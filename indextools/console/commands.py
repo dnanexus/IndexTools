@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 import autoclick as ac
 from xphyle import open_
 
-from idxtools.bed import BedInterval, iter_bed_interval_groups, iter_bed_intervals
+from indextools.bed import BedInterval, iter_bed_interval_groups, iter_bed_intervals
 
 
 def commands(
