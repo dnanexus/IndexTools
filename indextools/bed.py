@@ -3,9 +3,9 @@ import csv
 import _csv
 from pathlib import Path
 import subprocess
-from typing import Callable, Iterable, Iterator, Optional, Sequence, Union, Tuple
+from typing import Callable, Iterable, Iterator, Optional, Sequence, Union
 
-from indextools.intervals import GenomeInterval
+from indextools.intervals import GenomeInterval, BED6
 
 from xphyle import STDOUT, open_
 from xphyle.utils import read_delimited
@@ -24,7 +24,7 @@ class BedInterval(GenomeInterval):
         self.other = other
 
     @staticmethod
-    def from_row(row: Sequence[str]):
+    def from_row(row: Sequence[str]) -> "BedInterval":
         contig = row[0]
         start = int(row[1])
         end = int(row[2])
@@ -37,7 +37,7 @@ class BedInterval(GenomeInterval):
     def as_bed6(
         self, name: Optional[str] = None, value: Optional[int] = None,
         strand: str = None
-    ) -> Tuple:
+    ) -> BED6:
         return super().as_bed6(
             name or self.name, value or self.value, strand or self.strand
         )
