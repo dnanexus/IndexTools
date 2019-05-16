@@ -1,8 +1,17 @@
 [tool.poetry]
 name = "indextools"
 version = "0.1.1"
-description = "A toolkit for accelerating genomics using index files. "
+description = "A toolkit for accelerating genomics using index files."
+license = "MIT"
 authors = ["John Didion <jdidion@dnanexus.com>"]
+readme = "README.md"
+homepage = "https://github.com/dnanexus/indextools"
+repository = "https://github.com/dnanexus/indextools.git"
+classifiers = ["Development Status :: 4 - Beta"]
+include = [
+  "AUTHORS.md",
+  "CHANGES.md",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
