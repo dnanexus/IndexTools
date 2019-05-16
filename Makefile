@@ -1,6 +1,6 @@
 repo = dnanexus/IndexTools
 package = indextools
-version = 0.1.0
+version = 0.1.1
 tests = tests
 
 BUILD = poetry build && pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
