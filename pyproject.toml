@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "idxtools"
+version = "0.1.0"
+description = "A toolkit for accelerating genomics using index files. "
+authors = ["John Didion <jdidion@dnanexus.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+autoclick = "^0.5.1"
+ngsindex = "^0.1.7"
+pokrok = ""
+pysam = "^0.15"
+xphyle = "^4.0.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[tool.poetry.extras]
+jinja2 = ["jinja2"]
+
+[tool.poetry.scripts]
+idxtools = "idxtools.console:idxtools"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
