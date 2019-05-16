@@ -93,9 +93,9 @@ idxtools.command(
 
 # Generate a list commands, one per partition, given a template
 # and a partition BED file (e.g. output by the 'partition' command).
-idxtools.command(
-    decorated=commands.commands
-)
+# idxtools.command(
+#    decorated=commands.commands
+# )
 
 
 #

@@ -5,6 +5,13 @@ We welcome contributions of bug reports, feature requests, code, and documentati
 * All code and documentation contributions must be via pull request.
 * By submitting a pull request, you agree to donate your contribution under the terms of this project's [license](LICENSE).
 
+## Conventions
+
+* Format code according to [black](https://github.com/python/black) style.
+* Use type annotations in all function signatures and anywhere else they are necessary to resolve ambiguity.
+* Write [Google-style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) docstrings for all functions.
+* Write [self-documenting code](https://en.wikipedia.org/wiki/Self-documenting_code), commenting where necessary to explain complex functionality.
+
 ## Process
 
 IndexTools development follows the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model) development process. In summary:

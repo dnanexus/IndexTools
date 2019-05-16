@@ -283,7 +283,7 @@ def group_intervals(
         intervals_per_group = int(math.floor(num_intervals / num_groups))
         remainder = num_intervals - (intervals_per_group * num_groups)
         cur_group = 0
-        cur_ivl: VolumeInterval = None
+        cur_ivl: Optional[VolumeInterval] = None
         cur_group_ivl_count = 0
         target_ivl_count = intervals_per_group + (remainder > 0)
 
