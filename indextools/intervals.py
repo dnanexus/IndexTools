@@ -63,6 +63,8 @@ class Side(IntFlag):
 
 
 IVL = TypeVar("IVL", bound="GenomeInterval")
+BED3 = Tuple[str, int, int]
+BED6 = Tuple[str, int, int, str, int, str]
 
 
 class GenomeInterval(Sized):
@@ -336,7 +338,7 @@ class GenomeInterval(Sized):
             merged = merged.add(ivl)
         return merged
 
-    def as_bed3(self):
+    def as_bed3(self) -> BED3:
         """
         Returns this interval as a tuple in BED3 format.
 
@@ -347,7 +349,7 @@ class GenomeInterval(Sized):
 
     def as_bed6(
         self, name: Optional[str] = None, value: Optional[int] = None, strand: str = "."
-    ) -> Tuple:
+    ) -> BED6:
         """
         Returns this interval as a tuple in BED6 format.
 
@@ -365,7 +367,9 @@ class GenomeInterval(Sized):
             value = len(self)
         return self.contig, self.start, self.end, name, value, strand
 
-    def as_bed_extended(self, annotation_names: Optional[Sequence[str]], **kwargs):
+    def as_bed_extended(
+        self, annotation_names: Optional[Sequence[str]], **kwargs
+    ) -> tuple:
         """
         Returns this interval as a tuple with the first 6 columns being BED6 format
         and additional columns being annotations.
