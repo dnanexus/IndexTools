@@ -7,7 +7,7 @@ full list of contributors, see the revision history in source control.
 ## Inclusions
 
 * DNAnexus
-    * [John Didion](@jdidion)
+    * [John Didion (@jdidion)](https://github.com/jdidion)
 
 ## Exclusions
 

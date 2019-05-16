@@ -33,7 +33,7 @@ Some of the most commonly requested features that are not yet available are:
 
 ## Development
 
-We welcome contributions from the community. Please see the [developer README](CONTRIBUTING.md) for details.
+We welcome contributions from the community. Please see the [developer README](https://github.com/dnanexus/IndexTools/CONTRIBUTING.md) for details.
 
 ## Technical details
 
@@ -43,7 +43,7 @@ In a bioinformatics context, the term “size” is overloaded. It is used to re
 
 ## License
 
-IndexTools is Copyright (c) 2019 DNAnexus, Inc.; and is made available under the [MIT License](LICENSE).
+IndexTools is Copyright (c) 2019 DNAnexus, Inc.; and is made available under the [MIT License](https://github.com/dnanexus/IndexTools/LICENSE).
 
 IndexTools is *not* an officially supported DNAnexus product. All bug reports and feature requests should be handled via the [issue tracker](https://github.com/dnanexus/IndexTools/issues). Please *do not* contact DNAnexus support regarding this software.
 
