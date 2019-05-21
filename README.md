@@ -4,9 +4,37 @@ Common index formats, such as BAM Index (BAI) and Tabix (TBI), contain coarse-gr
 
 ## Installation
 
+### Pre-requisites
+
+* Python 3.6+
+
+### Pip
+
 ```bash
 pip install indextools
 ```
+
+### From source
+
+* Clone the repository
+  ```
+  git clone https://github.com/dnanexus/IndexTools.git
+  ```
+* You'll need several tools to run the full install and release process
+    * [git](https://git-scm.com/)
+    * [curl](https://curl.haxx.se/)
+    * [make](https://www.gnu.org/software/make/)
+    * [Poetry](https://github.com/sdispater/poetry)
+    * [Black](https://github.com/python/black)
+    * [Flake8](http://flake8.pycqa.org/en/latest/)
+    * [Dunamai](https://github.com/mtkennerly/dunamai)
+* Then
+  ```bash
+  # Install locally
+  $ make install
+  # Release new version (if you are a maintainer)
+  $ make release version=<new version> token=<GitHub API Token>
+  ```
 
 ## Commands
 
@@ -51,4 +79,5 @@ IndexTools is *not* an officially supported DNAnexus product. All bug reports an
 
 ## Acknowledgements
 
-The initial inspiration for IndexTools came from @brentp's [indexcov](https://github.com/brentp/goleft/tree/master/indexcov).
+* The initial inspiration for IndexTools came from @brentp's [indexcov](https://github.com/brentp/goleft/tree/master/indexcov).
+* IndexTools is built on several open-source libraries; see the [pyproject.toml](https://github.com/dnanexus/IndexTools/blob/develop/pyproject.toml) file for a full list.
