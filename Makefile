@@ -46,7 +46,7 @@ release:
 	$(clean)
 	# build
 	$(BUILD)
-	$(TEST)
+	#$(TEST)
 	# bump version
 	poetry version $(dunamai from git --no-metadata --style semver)
 	# publish
