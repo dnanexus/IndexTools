@@ -17,10 +17,11 @@ test:
 	$(TEST)
 
 lint:
-	pylint $(package)
+	flake8 $(package)
 
 reformat:
-	black .
+	black $(package)
+	black $(tests)
 
 clean:
 	rm -Rf __pycache__
@@ -43,11 +44,12 @@ docker:
 
 release:
 	$(clean)
-	# tag
-	git tag $(version)
 	# build
 	$(BUILD)
 	#$(TEST)
+	# bump version
+	poetry version $(dunamai from git --no-metadata --style semver)
+	# publish
 	poetry publish
 	# push new tag after successful build
 	git push origin --tags
