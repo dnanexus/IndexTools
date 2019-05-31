@@ -28,11 +28,4 @@ ENV LC_CTYPE=en_US.UTF-8
 RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 ENV PATH="/root/.poetry/bin:$PATH"
 
-## Obtain fresh repositories
-RUN git clone https://github.com/dnanexus/IndexTools.git \
-  && cd IndexTools \
-  && git checkout 35bec5a
-
-RUN cd IndexTools \
-  && make
-
+RUN mkdir -p /develop/IndexTools
