@@ -35,6 +35,8 @@ Some of the most commonly requested features that are not yet available are:
 
 We welcome contributions from the community. Please see the [developer README](https://github.com/dnanexus/IndexTools/blob/develop/CONTRIBUTING.md) for details.
 
+Contributors are required to abide by our [Code of Conduct](https://github.com/dnanexus/IndexTools/blob/develop/CODE_OF_CONDUCT.md).
+
 ## Technical details
 
 ### Volume
