@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM python:3.6-slim-stretch
 SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -6,26 +6,12 @@ RUN apt-get update \
   && apt-get install -y \
     curl \
     git \
-    locales \
-    python-pip \
-    python3-pip \
-    python3-dev \
-    python3-venv
+    vim
 
 RUN pip3 install pytest
 
-# Set python3 as default python implementation
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-
-# Set the locale and language settings
-RUN locale-gen "en_US.UTF-8"
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LC_CTYPE=en_US.UTF-8
-
-# Install poetry
 RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 ENV PATH="/root/.poetry/bin:$PATH"
 
-RUN mkdir -p /develop/IndexTools
+RUN mkdir -p /IndexTools
+
