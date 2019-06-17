@@ -503,13 +503,6 @@ class Intervals:
         return itertools.chain(self.interlaps)
 
 
-# TODO: replace InterLap with one of
-#  * https://github.com/brentp/quicksect
-#  * https://github.com/hunt-genes/ncls/
-#  * https://biocore-ntnu.github.io/pyranges/
-#  * https://github.com/lh3/cgranges
-
-
 class InterLap:
     """Fast interval overlap testing. An InterLap is based on a sorted list
     of intervals. Resorting the list is only performed when `commit` is called.

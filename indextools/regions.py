@@ -2,9 +2,9 @@ from pathlib import Path
 import re
 from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
-from .bed import iter_bed_intervals
-from .intervals import GenomeInterval, Intervals, IVL
-from .utils import References
+from indextools.bed import iter_bed_intervals
+from indextools.intervals import GenomeInterval, Intervals, IVL
+from indextools.utils import References
 
 from autoclick import ValidationError
 
