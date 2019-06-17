@@ -499,13 +499,6 @@ class Intervals:
         return itertools.chain(self.interlaps)
 
 
-# TODO: replace InterLap with one of
-#  * https://github.com/brentp/quicksect
-#  * https://github.com/hunt-genes/ncls/
-#  * https://biocore-ntnu.github.io/pyranges/
-#  * https://github.com/lh3/cgranges
-
-
 class InterLap:
     """Fast interval overlap testing. An InterLap is based on a sorted list
     of intervals. Resorting the list is only performed when `commit` is called.
@@ -638,7 +631,7 @@ class InterLap:
         Yields:
             If side == LEFT or RIGHT, the  single closest interval on the
             specified side is yielded.  If side == LEFT | RIGHT, all intervals
-            that are equidistant on the left  and right side are yielded.
+            that are equidistant on the left and right side are yielded.
         """
         left = None
         if side & Side.LEFT:

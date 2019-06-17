@@ -47,7 +47,7 @@ release:
 	git tag $(version)
 	# build
 	$(BUILD)
-	#$(TEST)
+	$(TEST)
 	poetry publish
 	# push new tag after successful build
 	git push origin --tags
