@@ -6,7 +6,9 @@ import random
 from typing import Sequence, Tuple
 
 from . import GenomeInterval, BasicGenomeInterval
+from .cgranges import CgrangesIntervals
 from .interlap import InterLapIntervals
+# from .ncls import NclsIntervals
 # from .pyranges import PyrangesIntervals
 from .quicksect import QuicksectIntervals
 
@@ -17,9 +19,11 @@ MAX_QUERY_INTERVALS_PER_CONTIG = 100
 MIN_CHROM_SIZE = 1000000
 MAX_CHROM_SIZE = 100000000
 LIBS = {
+    "cgranges": CgrangesIntervals,
     "interlap": InterLapIntervals,
-#    "pyranges": PyrangesIntervals,
-    "quicksect": QuicksectIntervals
+    # "ncls": NclsIntervals,
+    # "pyranges": PyrangesIntervals,
+    "quicksect": QuicksectIntervals,
 }
 
 
@@ -80,39 +84,22 @@ def test_find(benchmark, database_intervals, query_intervals, lib: str):
         return [db.find(ivl) for ivl in query_intervals]
 
 
-def test_find_equal(benchmark, database_intervals, query_intervals):
-    il = InterLapIntervals()
-    il.update(database_intervals)
-    il_results = [set(il.find(ivl)) for ivl in query_intervals]
+def test_find_equal(database_intervals, query_intervals):
+    names = []
+    results = []
 
-    qs = QuicksectIntervals()
-    qs.update(database_intervals)
-    qs_results = [set(qs.find(ivl)) for ivl in query_intervals]
+    for name, lib in LIBS.items():
+        names.append(name)
+        db = lib()
+        db.update(database_intervals)
+        results.append([set(db.find(ivl)) for ivl in query_intervals])
 
-    assert il_results == qs_results
-
-
-@pytest.mark.parametrize("lib", LIBS)
-@pytest.mark.benchmark(group="nearest")
-def test_nearest_after(benchmark, database_intervals, query_intervals, lib: str):
-    db = LIBS[lib]()
-    db.update(database_intervals)
-
-    @benchmark
-    def nearest():
-        return [db.nearest_after(ivl) for ivl in query_intervals]
-
-
-def test_nearest_equal(benchmark, database_intervals, query_intervals):
-    il = InterLapIntervals()
-    il.update(database_intervals)
-    il_results = [set(il.nearest_after(ivl)) for ivl in query_intervals]
-
-    qs = QuicksectIntervals()
-    qs.update(database_intervals)
-    qs_results = [set(qs.nearest_after(ivl)) for ivl in query_intervals]
-
-    print(query_intervals[0])
-    print(il_results[0])
-    print(qs_results[0])
-    #assert il_results == qs_results
+    for i in range(1, len(results)):
+        print(names[0], names[i])
+        assert results[0] == results[i]
+        # for j, (a, b) in enumerate(zip(results[0], results[i])):
+        #     try:
+        #         assert a == b
+        #     except:
+        #         print(query_intervals[j], a, b)
+        #         raise

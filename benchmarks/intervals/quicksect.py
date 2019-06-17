@@ -40,14 +40,3 @@ class QuicksectIntervals(Intervals):
             BasicGenomeInterval(i.data, i.start, i.end)
             for i in self.trees[ivl.contig].search(ivl.start, ivl.end)
         )
-
-    def nearest_after(self, ivl: GenomeInterval) -> Iterable[GenomeInterval]:
-        if ivl.contig not in self.trees:
-            return []
-        return list(
-            BasicGenomeInterval(i.data, i.start, i.end)
-            for i in self.trees[ivl.contig].right(
-                Interval(ivl.start, ivl.end),
-                max_dist=100000000
-            )
-        )

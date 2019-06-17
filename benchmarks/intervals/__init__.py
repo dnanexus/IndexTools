@@ -65,9 +65,3 @@ class Intervals(metaclass=ABCMeta):
         """
         Finds all the intervals that overlap `ivl`.
         """
-
-    @abstractmethod
-    def nearest_after(self, ivl: GenomeInterval) -> Iterable[GenomeInterval]:
-        """
-        Finds the nearest interval(s) after (to the right of) `ivl`.
-        """

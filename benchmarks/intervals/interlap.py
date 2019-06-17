@@ -57,14 +57,6 @@ class InterLapIntervals(Intervals):
             for i in self.interlaps[ivl.contig].find(ivl)
         )
 
-    def nearest_after(self, ivl: GenomeInterval) -> Iterable[GenomeInterval]:
-        if ivl.contig not in self.interlaps:
-            return []
-        return list(
-            BasicGenomeInterval(i.contig, i.start, i.end)
-            for i in self.interlaps[ivl.contig].closest(ivl, Side.RIGHT)
-        )
-
 
 class InterLap:
     """Fast interval overlap testing. An InterLap is based on a sorted list

@@ -23,14 +23,3 @@ class PyrangesIntervals(Intervals):
             for contig, df in ovl
             for _, row in df.iterrows()
         )
-
-    def nearest_after(self, ivl: GenomeInterval) -> Iterable[GenomeInterval]:
-        ovl = self.ranges.nearest(
-            pr.PyRanges(chromosomes=ivl.contig, starts=[ivl.start], ends=[ivl.end]),
-            how="next"
-        )
-        return (
-            BasicGenomeInterval(contig, row["Start_b"], row["End_b"])
-            for contig, df in ovl
-            for _, row in df.iterrows()
-        )
