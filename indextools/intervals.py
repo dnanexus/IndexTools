@@ -530,7 +530,7 @@ class InterLap:
         self._dirty = False
 
     def add(
-        self, intervals: Union[GenomeInterval, Sequence[GenomeInterval]],
+        self, intervals: Union[GenomeInterval, Iterable[GenomeInterval]],
         commit: Optional[bool] = None
     ):
         """Add a single (or many) Intervals to the tree.
