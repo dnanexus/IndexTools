@@ -60,47 +60,47 @@ def query_intervals(contigs: Sequence[Tuple[str, int]]):
     return random_intervals(contigs, MAX_QUERY_INTERVALS_PER_CONTIG)
 
 
-# @pytest.mark.parametrize("lib", LIBS)
-# @pytest.mark.benchmark(group="update")
-# def test_update(benchmark, database_intervals, lib: str):
-#     @benchmark
-#     def update():
-#         db = LIBS[lib]()
-#         db.update(database_intervals)
-#
-#
-# @pytest.mark.parametrize("lib", LIBS)
-# @pytest.mark.benchmark(group="find")
-# def test_find(benchmark, database_intervals, query_intervals, lib: str):
-#     db = LIBS[lib]()
-#     db.update(database_intervals)
-#
-#     @benchmark
-#     def find():
-#         return [db.find(ivl) for ivl in query_intervals]
+@pytest.mark.parametrize("lib", LIBS)
+@pytest.mark.benchmark(group="update")
+def test_update(benchmark, database_intervals, lib: str):
+    @benchmark
+    def update():
+        db = LIBS[lib]()
+        db.update(database_intervals)
 
 
-# def test_find_equal(benchmark, database_intervals, query_intervals):
-#     il = InterLapIntervals()
-#     il.update(database_intervals)
-#     il_results = [set(il.find(ivl)) for ivl in query_intervals]
-#
-#     qs = QuicksectIntervals()
-#     qs.update(database_intervals)
-#     qs_results = [set(qs.find(ivl)) for ivl in query_intervals]
-#
-#     assert il_results == qs_results
-#
+@pytest.mark.parametrize("lib", LIBS)
+@pytest.mark.benchmark(group="find")
+def test_find(benchmark, database_intervals, query_intervals, lib: str):
+    db = LIBS[lib]()
+    db.update(database_intervals)
 
-# @pytest.mark.parametrize("lib", LIBS)
-# @pytest.mark.benchmark(group="nearest")
-# def test_nearest_after(benchmark, database_intervals, query_intervals, lib: str):
-#     db = LIBS[lib]()
-#     db.update(database_intervals)
-#
-#     @benchmark
-#     def find():
-#         return [db.nearest_after(ivl) for ivl in query_intervals]
+    @benchmark
+    def find():
+        return [db.find(ivl) for ivl in query_intervals]
+
+
+def test_find_equal(benchmark, database_intervals, query_intervals):
+    il = InterLapIntervals()
+    il.update(database_intervals)
+    il_results = [set(il.find(ivl)) for ivl in query_intervals]
+
+    qs = QuicksectIntervals()
+    qs.update(database_intervals)
+    qs_results = [set(qs.find(ivl)) for ivl in query_intervals]
+
+    assert il_results == qs_results
+
+
+@pytest.mark.parametrize("lib", LIBS)
+@pytest.mark.benchmark(group="nearest")
+def test_nearest_after(benchmark, database_intervals, query_intervals, lib: str):
+    db = LIBS[lib]()
+    db.update(database_intervals)
+
+    @benchmark
+    def nearest():
+        return [db.nearest_after(ivl) for ivl in query_intervals]
 
 
 def test_nearest_equal(benchmark, database_intervals, query_intervals):
