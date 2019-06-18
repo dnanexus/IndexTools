@@ -3,18 +3,15 @@ from pathlib import Path
 import filecmp
 import pytest
 
-INPUT_DATA_DIR = Path(__file__, "..", "input_data").resolve()
-VERIFICATION_DATA_DIR = Path(__file__, "..", "verification_data").resolve()
-
 
 @pytest.mark.parametrize(
     "index_file,contig_sizes_file,partition_count,expected_partition_bed",
     [
         pytest.param(
-            INPUT_DATA_DIR / "small.bam.bai",
-            INPUT_DATA_DIR / "contig_sizes.txt",
+            "small.bam.bai",
+            "contig_sizes.txt",
             10,
-            VERIFICATION_DATA_DIR / "small_partitions.bed",
+            "small_partitions.bed",
             id="bai_index",
         )
     ],
@@ -24,6 +21,7 @@ def test_partition_index_w_contigs(
     contig_sizes_file,
     partition_count,
     expected_partition_bed,
+    datadir,
     request,
     tmp_path,
 ):
@@ -36,6 +34,11 @@ def test_partition_index_w_contigs(
         -o <test_name>.partitions.bed
     ```
     """
+    # Arrange input datafiles
+    index_file = datadir[index_file]
+    contig_sizes_file = datadir[contig_sizes_file]
+    expected_partition_bed = datadir[expected_partition_bed]
+
     partition_bed = tmp_path / "{}.partitions.bed".format(request.node.name)
 
     partition.partition(
