@@ -22,6 +22,9 @@ xphyle = "^4.0.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
+pytest-cov = "^2.7"
+black = {version = "^18.9b0",allows-prereleases = true}
+pytest-datadir-ng = "^1.1"
 
 [tool.poetry.extras]
 jinja2 = ["jinja2"]

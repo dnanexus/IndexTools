@@ -1,0 +1,10 @@
+chr1	0	65536	Partition_1	208	.
+chr1	65536	131072	Partition_2	208	.
+chr1	131072	135168	Partition_3	208	.
+chr1	135168	139264	Partition_4	208	.
+chr1	139264	143360	Partition_5	208	.
+chr1	143360	147456	Partition_6	208	.
+chr1	147456	159744	Partition_7	104	.
+chr1	159744	172032	Partition_8	104	.
+chr1	172032	184320	Partition_9	104	.
+chr1	184320	196608	Partition_10	104	.
