@@ -21,7 +21,7 @@ def test_partition_index_w_contigs(
     contig_sizes_file,
     partition_count,
     expected_partition_bed,
-    datadir,
+    datapath,
     request,
     tmp_path,
 ):
@@ -35,9 +35,9 @@ def test_partition_index_w_contigs(
     ```
     """
     # Arrange input datafiles
-    index_file = datadir[index_file]
-    contig_sizes_file = datadir[contig_sizes_file]
-    expected_partition_bed = datadir[expected_partition_bed]
+    index_file = datapath[index_file]
+    contig_sizes_file = datapath[contig_sizes_file]
+    expected_partition_bed = datapath[expected_partition_bed]
 
     partition_bed = tmp_path / "{}.partitions.bed".format(request.node.name)
 
