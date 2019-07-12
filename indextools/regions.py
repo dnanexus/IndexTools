@@ -33,13 +33,13 @@ def parse_region(region_str: str) -> Region:
         if len(parts) == 2:
             end = start
         else:
-            end = int(parts[2])
+            end = parts[2] if parts[2] == '*' else int(parts[2])
         if start <= 0:
             raise ValidationError(
                 f"Invalid region interval {region_str}: start must be >= 1"
             )
         start -= 1
-        if start >= end:
+        if type(end) is int and start >= end:
             raise ValidationError(
                 f"Invalid region interval {region_str}: start must be <= end"
             )
