@@ -33,7 +33,7 @@ In the bash session in the image `cd` to `/IndexTools` and perform the steps out
 
 ## Local Dev
 
-If developing directly on your local machine using virtual environments, you'll need `python3.6` and poetry to resolve pyproject.toml configurations. If you already have `python3.6` feel free to skip the pyenv sections.
+If developing directly on your local machine using virtual environments, you'll need `python3.6+` and poetry to resolve pyproject.toml configurations. If you already have `python3.6+` feel free to skip the pyenv sections.
 
 ### Install Poetry
 
