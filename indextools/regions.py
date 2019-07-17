@@ -110,7 +110,7 @@ class Regions:
         targets: Optional[Path] = None,
         macros: Optional[Dict[str, List[str]]] = None,
     ) -> Intervals:
-        intervals = Intervals(allows_overlapping=False)
+        intervals = Intervals()
 
         if regions:
             intervals.add_all(self._create_interval(ivl) for ivl in regions)
@@ -169,51 +169,6 @@ class Regions:
             else:
                 raise ValueError(f"Contig {contig} not found in references")
         return GenomeInterval(contig, start, end)
-
-    def allows(self, interval: GenomeInterval) -> bool:
-        """
-
-        Args:
-            interval:
-
-        Returns:
-            True if 'interval' is fully contained within an included region (if any)
-            and does not overlap any excluded region (if any).
-        """
-
-        if self._include_intervals:
-            contained = False
-            overlapping = self._include_intervals.find(interval)
-            for ivl in overlapping:
-                if interval.compare(ivl)[2] == 1:
-                    contained = True
-        else:
-            contained = True
-
-        if not contained or (
-            self._exclude_intervals and interval in self._exclude_intervals
-        ):
-            return False
-
-        return True
-
-    def iter_allowed(self) -> Iterator[GenomeInterval]:
-        if self._include_intervals:
-            interval_itr = self._include_intervals
-        else:
-            interval_itr = (
-                GenomeInterval(ref, 0, self._references[ref])
-                for ref in self._references.names
-            )
-        if self._exclude_intervals:
-            for ivl in interval_itr:
-                overlapping = self._exclude_intervals.find(ivl)
-                if overlapping:
-                    yield from GenomeInterval.divide(ivl, overlapping)
-                else:
-                    yield ivl
-        else:
-            yield from interval_itr
 
     def intersect(self, intervals: Iterable[IVL]) -> Iterator[IVL]:
         """

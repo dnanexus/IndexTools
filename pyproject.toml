@@ -18,6 +18,7 @@ python = "^3.6"
 autoclick = "^0.6.0"
 ngsindex = "^0.1.7"
 pysam = "^0.15"
+quicksect = "^0.2.2"
 xphyle = "^4.0.8"
 
 [tool.poetry.dev-dependencies]
