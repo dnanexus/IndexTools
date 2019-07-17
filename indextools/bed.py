@@ -13,9 +13,14 @@ from xphyle.utils import read_delimited
 
 class BedInterval(GenomeInterval):
     def __init__(
-        self, contig: Union[int, str], start: int, end: int,
-        name: Optional[str] = None, value: Optional[int] = None,
-        strand: Optional[str] = ".", other: Optional[Sequence[str]] = None
+        self,
+        contig: Union[int, str],
+        start: int,
+        end: int,
+        name: Optional[str] = None,
+        value: Optional[int] = None,
+        strand: Optional[str] = ".",
+        other: Optional[Sequence[str]] = None,
     ) -> None:
         super().__init__(contig, start, end)
         self.name = name
@@ -35,8 +40,10 @@ class BedInterval(GenomeInterval):
         return BedInterval(contig, start, end, name, value, strand, other)
 
     def as_bed6(
-        self, name: Optional[str] = None, value: Optional[int] = None,
-        strand: str = None
+        self,
+        name: Optional[str] = None,
+        value: Optional[int] = None,
+        strand: str = None,
     ) -> BED6:
         return super().as_bed6(
             name or self.name, value or self.value, strand or self.strand
@@ -127,9 +134,11 @@ def bed_writer(
 
 def write_intervals_bed(
     ivls: Union[Iterable[GenomeInterval], Iterable[Sequence[GenomeInterval]]],
-    outfile: STDOUT, name_pattern: str = "Partition_{group}",
+    outfile: STDOUT,
+    name_pattern: str = "Partition_{group}",
     extra_columns: Optional[Callable[[GenomeInterval], tuple]] = None,
-    bgzip: bool = True, index: bool = True
+    bgzip: bool = True,
+    index: bool = True,
 ):
     """
     Write GenomeIntervals to a BED file.
@@ -150,6 +159,7 @@ def write_intervals_bed(
     with bed_writer(outfile, bgzip, index) as bed:
         row_ctr = 1
         for group_ctr, group in enumerate(ivls, 1):
+
             def writewrow(ivl: GenomeInterval):
                 name = name_pattern.format(group=group_ctr, row=row_ctr)
                 row = ivl.as_bed6(name)
@@ -180,6 +190,8 @@ def annotations_extra_columns(
     Returns:
         Callable
     """
+
     def extra_columns(ivl: GenomeInterval):
         return ivl.as_bed_extended(names)
+
     return extra_columns

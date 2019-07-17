@@ -70,8 +70,10 @@ class References:
         return self.get_size(item)
 
     def __repr__(self) -> str:
-        return f"References(" \
+        return (
+            f"References("
             f"{','.join(f'{k}={str(v)}' for k, v in self.name_to_size.items())})"
+        )
 
     def get_size(self, ref: Union[str, int]) -> int:
         """Gets the size of a reference.
@@ -144,6 +146,7 @@ class References:
         Returns:
             A References object.
         """
+
         def bam_to_references(_bam):
             return References(list(zip(_bam.references, _bam.lengths)))
 

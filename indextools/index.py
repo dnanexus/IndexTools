@@ -29,14 +29,31 @@ class IntervalGrouping(Enum):
 
 
 class VolumeInterval(GenomeInterval):
+    """Subclass of :class:`GenomeInterval` for intervals with associated volume.
+
+    Args:
+        contig:
+        start:
+        end:
+        volume:
+    """
+
     def __init__(
-        self, contig: str, start: int, end: int, volume: Optional[int] = None,
-        **kwargs
+        self, contig: str, start: int, end: int, volume: Optional[int] = None, **kwargs
     ):
         super().__init__(contig, start, end, **kwargs)
         self.volume = volume
 
     def get_volume(self, start: Optional[int] = None, end: Optional[int] = None) -> int:
+        """Gets the volume within the specified range.
+
+        Args:
+            start:
+            end:
+
+        Returns:
+            The volume in the specified range, computed as ((end-start)/length)*volume.
+        """
         if not start or start < self.start:
             start = self.start
         if not end or end > self.end:
@@ -57,8 +74,11 @@ class VolumeInterval(GenomeInterval):
             else:
                 other_vol = other.get_volume(start=self.end)
             return VolumeInterval(
-                self.contig, self.start, other.end, self.volume + other_vol,
-                **self._merge_annotations(other)
+                self.contig,
+                self.start,
+                other.end,
+                self.volume + other_vol,
+                **self._merge_annotations(other),
             )
 
     def subtract(
@@ -70,13 +90,11 @@ class VolumeInterval(GenomeInterval):
         left = right = None
         if other.start > self.start:
             left = VolumeInterval(
-                self.contig, self.start, other.start,
-                self.get_volume(end=other.start)
+                self.contig, self.start, other.start, self.get_volume(end=other.start)
             )
         if other.end < self.end:
             right = VolumeInterval(
-                self.contig, other.end, self.end,
-                self.get_volume(start=other.end)
+                self.contig, other.end, self.end, self.get_volume(start=other.end)
             )
         return left, right
 
@@ -91,10 +109,12 @@ class VolumeInterval(GenomeInterval):
         return VolumeInterval(self.contig, start, end, volume)
 
     def split(
-        self: "VolumeInterval", num_pieces: Optional[int] = 2,
-        target_volume: Optional[int] = None
+        self: "VolumeInterval",
+        num_pieces: Optional[int] = 2,
+        target_volume: Optional[int] = None,
     ) -> Iterator["VolumeInterval"]:
-        """Break up an interval into smaller pieces.
+        """
+        Breaks up an interval into smaller pieces.
 
         Args:
             num_pieces: Number of pieces in which to split the interval. Ignored if
@@ -110,15 +130,15 @@ class VolumeInterval(GenomeInterval):
 
         for ivl_start in range(self.start, self.end, piece_length):
             ivl_end = min(self.end, ivl_start + piece_length)
-            ivl_vol = int(math.ceil(
-                ((ivl_end - ivl_start) / total_length) * self.volume
-            ))
+            ivl_vol = int(
+                math.ceil(((ivl_end - ivl_start) / total_length) * self.volume)
+            )
             yield VolumeInterval(self.contig, ivl_start, ivl_end, ivl_vol)
 
     @staticmethod
     def merge_precomputed(intervals: Iterable[IVL], volume: int) -> "VolumeInterval":
         """
-        Merge a group of intervals for which the total volume has already been
+        Merges a group of intervals for which the total volume has already been
         computed.
 
         Args:
@@ -137,6 +157,17 @@ class VolumeInterval(GenomeInterval):
     def as_bed6(
         self, name: Optional[str] = None, value: Optional[int] = None, strand: str = "."
     ) -> Tuple:
+        """
+        Converts this interval to BED6 format.
+
+        Args:
+            name:
+            value:
+            strand:
+
+        Returns:
+            Tuple with 6 values corresponding to the first six columns of BED format.
+        """
         if value is None:
             value = self.volume
         return super().as_bed6(name, value, strand)
@@ -148,7 +179,8 @@ class VolumeInterval(GenomeInterval):
 
 
 class IndexInterval(VolumeInterval):
-    """Mapping between a genomic interval and an offset in the linear index,
+    """
+    Mapping between a genomic interval and an offset in the linear index,
     including offset diffs from the previous interval.
 
     Args:
@@ -170,8 +202,8 @@ class IndexInterval(VolumeInterval):
         file_offset_diff: int,
         block_offset_diff: int,
         contig_end: bool,
-        **kwargs
-    ) -> None:
+        **kwargs,
+    ):
         contig_name, contig_len = references.reference_list[ref_num]
         start = ivl_num * INTERVAL_LEN
         super().__init__(
@@ -210,14 +242,14 @@ class IndexInterval(VolumeInterval):
             self.volume = self.block_offset_diff
         else:
             num_blocks = max(1.0, self.file_offset_diff / compressed_block_size)
-            self.volume = int(math.ceil(
-                (num_blocks * BGZF_BLOCK_SIZE) + self.block_offset_diff
-            ))
+            self.volume = int(
+                math.ceil((num_blocks * BGZF_BLOCK_SIZE) + self.block_offset_diff)
+            )
         return self.volume
 
     def __repr__(self) -> str:
         return (
-            f"{super().__repr__()} (ref_num={self.ref_num}, ivl_num={self.ivl_num}, " 
+            f"{super().__repr__()} (ref_num={self.ref_num}, ivl_num={self.ivl_num}, "
             f"offset={self.offset}, file_offset_diff={self.file_offset_diff}, "
             f"block_offset_diff={self.block_offset_diff})"
         )
@@ -236,7 +268,8 @@ def group_intervals(
     regions: Optional[Regions] = None,
     **kwargs,
 ) -> Union[Sequence[VolumeInterval], Sequence[Sequence[VolumeInterval]]]:
-    """Determine equal-volume intervals, and then group adjacent intervals
+    """
+    Determines equal-volume intervals, and then group adjacent intervals
     together to create `num_groups` equal volume groups.
 
     Args:
@@ -319,7 +352,8 @@ def iter_index_intervals(
     batch_volume: int = None,
     batch_volume_coeff: float = 1.5,
 ) -> Iterator[VolumeInterval]:
-    """Iterate over the intervals in the index and yield batch intervals that
+    """
+    Iterates over the intervals in the index and yield batch intervals that
     meet certain size criteria.
 
     Args:
@@ -337,9 +371,7 @@ def iter_index_intervals(
     """
     ivls = index_to_intervals(index, references)
 
-    file_offset_diffs = list(
-        i.file_offset_diff for i in ivls if i.file_offset_diff > 0
-    )
+    file_offset_diffs = list(i.file_offset_diff for i in ivls if i.file_offset_diff > 0)
     if len(file_offset_diffs) > 0:
         # We assume that the median difference in block offsets is about the
         # average compressed size C of a single 64 KB block.
@@ -355,9 +387,7 @@ def iter_index_intervals(
     # If the user did not specify a batch volume, we use the median of the
     # interval volumes.
     if not batch_volume:
-        batch_volume = statistics.median(
-            ivol for ivol in interval_volumes if ivol != 0
-        )
+        batch_volume = statistics.median(ivol for ivol in interval_volumes if ivol != 0)
 
     # Group together intervals smaller than batch volume, and break up intervals
     # larger than batch volume.
@@ -406,7 +436,8 @@ def iter_index_intervals(
 def index_to_intervals(
     index: CoordinateIndex, references: References
 ) -> List[IndexInterval]:
-    """Reduce an index to a list of intervals.
+    """
+    Reduces an index to a list of intervals.
 
     Args:
         index: The index to convert.

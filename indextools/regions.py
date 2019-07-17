@@ -62,6 +62,7 @@ class Regions:
         targets: A BED file with targets to include.
         exclude_targets: A BED file with targets to exclude.
     """
+
     def __init__(
         self,
         region: Optional[List[Region]] = None,
@@ -69,7 +70,7 @@ class Regions:
         contig: Optional[List[str]] = None,
         exclude_contig: Optional[List[str]] = None,
         targets: Optional[Path] = None,
-        exclude_targets: Optional[Path] = None
+        exclude_targets: Optional[Path] = None,
     ):
         self._include_regions = region
         self._exclude_regions = exclude_region
@@ -91,7 +92,7 @@ class Regions:
                 self._include_regions,
                 self._include_contigs,
                 self._include_targets,
-                macros
+                macros,
             )
 
         if self._exclude_regions or self._exclude_contigs or self._exclude_targets:
@@ -99,7 +100,7 @@ class Regions:
                 self._exclude_regions,
                 self._exclude_contigs,
                 self._include_targets,
-                macros
+                macros,
             )
 
     def _create_region_intervals(
@@ -107,7 +108,7 @@ class Regions:
         regions: Optional[List[Region]] = None,
         contigs: Optional[List[str]] = None,
         targets: Optional[Path] = None,
-        macros: Optional[Dict[str, List[str]]] = None
+        macros: Optional[Dict[str, List[str]]] = None,
     ) -> Intervals:
         intervals = Intervals(allows_overlapping=False)
 
@@ -166,9 +167,7 @@ class Regions:
             if contig in self._references:
                 end = self._references[contig]
             else:
-                raise ValueError(
-                    f"Contig {contig} not found in references"
-                )
+                raise ValueError(f"Contig {contig} not found in references")
         return GenomeInterval(contig, start, end)
 
     def allows(self, interval: GenomeInterval) -> bool:

@@ -1,23 +1,5 @@
-"""This is a complete example of how a BAM index can be used to estimate the "density"
-of each genomic interval (16 kb size), where density is an approximate measure of the
-size in bytes (which, in turn, is roughly correlated with the number of reads).
+"""
 
-The primary use case is to partition a BAM file into N groups of intervals for parallel
-processing a BAM file across N threads.
-
-```
-from intervals import get_bam_partitions
-
-# Parallelize operations on a BAM file across many threads
-threads = 32
-
-# Get partitions of the BAM file that are roughly equal
-partitions = get_bam_partitions(bam_file, num_groups=threads)
-
-# Submit parallel jobs
-for intervals in partitions:
-    submit_job(process_bam, bam_file, intervals)
-```
 """
 from collections import Sized
 import copy
@@ -75,9 +57,7 @@ class GenomeInterval(Sized):
     Todo: How to merge annotations?
     """
 
-    def __init__(
-        self, contig: Union[int, str], start: int, end: int, **kwargs
-    ) -> None:
+    def __init__(self, contig: Union[int, str], start: int, end: int, **kwargs) -> None:
         if start is None:
             start = 0
         if end <= start:
@@ -194,7 +174,7 @@ class GenomeInterval(Sized):
             contig_cmp,
             diff,
             min(1, overlap / len(self)),
-            min(1, (-1 * overlap) / other_len)
+            min(1, (-1 * overlap) / other_len),
         )
 
     def contig_equal(self: IVL, other: IVL) -> None:
@@ -220,8 +200,10 @@ class GenomeInterval(Sized):
                 f"Cannot merge non-overlapping/adjacent intervals {self}, {other}"
             )
         return GenomeInterval(
-            self.contig, min(self.start, other.start), max(self.end, other.end),
-            **self._merge_annotations(other)
+            self.contig,
+            min(self.start, other.start),
+            max(self.end, other.end),
+            **self._merge_annotations(other),
         )
 
     def _merge_annotations(self: IVL, other: IVL) -> dict:
@@ -398,7 +380,7 @@ class GenomeInterval(Sized):
             "end": self.end,
             "length": len(self),
             "region": self.region,
-            "annotations": self.annotations
+            "annotations": self.annotations,
         }
 
 
@@ -414,9 +396,10 @@ class Intervals:
     """
 
     def __init__(
-        self, intervals: Iterable[GenomeInterval] = (),
+        self,
+        intervals: Iterable[GenomeInterval] = (),
         interval_type: Type[GenomeInterval] = None,
-        allows_overlapping: bool = True
+        allows_overlapping: bool = True,
     ) -> None:
         if interval_type is None:
             if intervals:
@@ -429,8 +412,9 @@ class Intervals:
         self.interval_type = interval_type
         self.interlaps = DefaultDict(
             default=functools.partial(
-                InterLap, interval_type=interval_type,
-                allows_overlapping=allows_overlapping
+                InterLap,
+                interval_type=interval_type,
+                allows_overlapping=allows_overlapping,
             )
         )
         if intervals:
@@ -520,8 +504,9 @@ class InterLap:
     """
 
     def __init__(
-        self, interval_type: Optional[Type[GenomeInterval]] = None,
-        allows_overlapping: bool = True
+        self,
+        interval_type: Optional[Type[GenomeInterval]] = None,
+        allows_overlapping: bool = True,
     ) -> None:
         self.interval_type = interval_type
         self.allows_overlapping = allows_overlapping
@@ -530,8 +515,9 @@ class InterLap:
         self._dirty = False
 
     def add(
-        self, intervals: Union[GenomeInterval, Iterable[GenomeInterval]],
-        commit: Optional[bool] = None
+        self,
+        intervals: Union[GenomeInterval, Iterable[GenomeInterval]],
+        commit: Optional[bool] = None,
     ):
         """Add a single (or many) Intervals to the tree.
 
@@ -596,14 +582,14 @@ class InterLap:
         max_search = 8
         if left == len(self._iset):
             return False
-        for left_ivl in self._iset[left:(left + max_search)]:
+        for left_ivl in self._iset[left : (left + max_search)]:
             if left_ivl in other:
                 return True
             if left_ivl.start > other.end:
                 return False
 
         r = InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
-        return any(s in other for s in self._iset[(left + max_search):r])
+        return any(s in other for s in self._iset[(left + max_search) : r])
 
     def find(self, other: GenomeInterval) -> Iterator[GenomeInterval]:
         """Returns an iterable of elements that overlap `other` in the tree.
@@ -651,9 +637,7 @@ class InterLap:
         if side & Side.RIGHT:
             right = min(
                 len(self._iset),
-                InterLap.binsearch_right_end(
-                    self._iset, other.end, 0, len(self._iset)
-                )
+                InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
                 + 2,
             )
 
