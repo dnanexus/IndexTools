@@ -590,14 +590,14 @@ class InterLap:
         max_search = 8
         if left == len(self._iset):
             return False
-        for left_ivl in self._iset[left : (left + max_search)]:
+        for left_ivl in self._iset[left:(left + max_search)]:
             if left_ivl in other:
                 return True
             if left_ivl.start > other.end:
                 return False
 
         r = InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
-        return any(s in other for s in self._iset[(left + max_search) : r])
+        return any(s in other for s in self._iset[(left + max_search):r])
 
     def find(self, other: GenomeInterval) -> Iterator[GenomeInterval]:
         """Returns an iterable of elements that overlap `other` in the tree.
