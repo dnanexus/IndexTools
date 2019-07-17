@@ -46,10 +46,6 @@ def parse_region(region_str: str) -> Region:
         return contig, start, end
 
 
-# TODO: add an invert option - not sure if makes sense to add this to the
-#  constructor or make it a paramter to the methods.
-
-
 class Regions:
     """
     Collection of genome regions.
@@ -61,6 +57,10 @@ class Regions:
         exclude_contig: A contig to exclude.
         targets: A BED file with targets to include.
         exclude_targets: A BED file with targets to exclude.
+
+    Todo:
+        Add an invert option - not sure if makes sense to add this to the
+        constructor or make it a paramter to the methods.
     """
 
     def __init__(

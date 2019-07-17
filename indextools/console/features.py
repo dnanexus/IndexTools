@@ -45,7 +45,7 @@ def features(
 
             count = bam.count(*ivl.as_bed3(), read_callback=check_read)
 
-            return (count,)
+            return count,
 
         write_intervals_bed(
             partitions_iter,

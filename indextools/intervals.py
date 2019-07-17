@@ -1,6 +1,3 @@
-"""
-
-"""
 from collections import Sized
 import copy
 from enum import IntFlag
@@ -37,7 +34,8 @@ PositionComparison = Tuple[int, float, float]
 
 
 class Side(IntFlag):
-    """Side flag for use with interval searching.
+    """
+    Side flag for use with interval searching.
     """
 
     LEFT = 1
@@ -50,11 +48,19 @@ BED6 = Tuple[str, int, int, str, int, str]
 
 
 class GenomeInterval(Sized):
-    """An interval consists of a contig, start, and end position.
-    Start and/or end may be None to signal that the interval extends to the
-    end of the contig.
+    """
+    An interval of a contig, consisting of a contig name, start position (
+    zero-indexed), and end position (non-inclusive).
 
-    Todo: How to merge annotations?
+    Args:
+        contig:
+        start: Start position. May be `None` to signal that the interval extends to the
+            beginning of the contig (i.e. position 0).
+        end: End position.  May be `None` to signal that the interval extends to the
+            end of the contig.
+
+    Todo:
+        How to merge annotations?
     """
 
     def __init__(self, contig: Union[int, str], start: int, end: int, **kwargs) -> None:
@@ -127,7 +133,8 @@ class GenomeInterval(Sized):
         return f"{self.contig}:{self.start}-{self.end}"
 
     def compare(self: IVL, other: IVL) -> IntervalComparison:
-        """Rich comparison of intervals.
+        """
+        Rich comparison of intervals.
 
         Returns:
             A tuple consisting of 1) the comparison between this contig and
@@ -278,7 +285,7 @@ class GenomeInterval(Sized):
     @classmethod
     def divide(cls: Type[IVL], ivl: IVL, *other: IVL) -> Iterator[IVL]:
         """
-        Generate new intervals by subtracting other from `ivl`.
+        Generates new intervals by subtracting `other` from `ivl`.
 
         Args:
             ivl:
@@ -385,7 +392,8 @@ class GenomeInterval(Sized):
 
 
 class Intervals:
-    """Collection of InterLaps (one per contig).
+    """
+    Collection of InterLaps (one per contig).
 
     Args:
         intervals: Iterable of GenomeIntervals.
