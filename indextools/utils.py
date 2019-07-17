@@ -24,7 +24,8 @@ T = TypeVar("T")
 
 
 class OrderedSet(Generic[T]):
-    """Simple set (does not implement the full set API) based on dict that
+    """
+    Simple set (does not implement the full set API) based on dict that
     maintains addition order.
     """
 
@@ -45,8 +46,12 @@ class OrderedSet(Generic[T]):
 
 
 class References:
-    """Stores map of reference name to size, and provides access to reference_list
+    """
+    Stores map of reference name to size, and provides access to reference_list
     in different formats.
+
+    Args:
+        references: Sequence of (contig, size) tuples.ß
     """
 
     def __init__(self, references: Sequence[Tuple[str, int]]):
@@ -70,11 +75,14 @@ class References:
         return self.get_size(item)
 
     def __repr__(self) -> str:
-        return f"References(" \
+        return (
+            f"References("
             f"{','.join(f'{k}={str(v)}' for k, v in self.name_to_size.items())})"
+        )
 
     def get_size(self, ref: Union[str, int]) -> int:
-        """Gets the size of a reference.
+        """
+        Gets the size of a reference.
 
         Args:
             ref: A reference name or index.
@@ -124,7 +132,8 @@ class References:
 
     @staticmethod
     def from_file(path: Path) -> "References":
-        """Loads references from a tsv file with two columns: ref_name, ref_size.
+        """
+        Loads references from a tsv file with two columns: ref_name, ref_size.
 
         Args:
             path: The path of the tsv file.
@@ -136,7 +145,8 @@ class References:
 
     @staticmethod
     def from_bam(bam: Union[Path, pysam.AlignmentFile]) -> "References":
-        """Loads references from the header of a BAM file.
+        """
+        Loads references from the header of a BAM file.
 
         Args:
             bam: Either a path to a BAM file or an open pysam.AlignmentFile.
@@ -144,6 +154,7 @@ class References:
         Returns:
             A References object.
         """
+
         def bam_to_references(_bam):
             return References(list(zip(_bam.references, _bam.lengths)))
 
@@ -172,7 +183,7 @@ def split_path(path: Path) -> Tuple[Path, str, Sequence[str]]:
 
 def replace_suffix(path: Path, new_suffix: str) -> Path:
     """
-    Replace the current suffix of `path` (everything from the first '.' on) with
+    Replaces the current suffix of `path` (everything from the first '.' on) with
     `new_suffix`.
 
     Args:
@@ -180,7 +191,7 @@ def replace_suffix(path: Path, new_suffix: str) -> Path:
         new_suffix:
 
     Returns:
-
+        A new Path with suffix replaced.
     """
     parts = split_path(path)
     return parts[0] / (parts[1] + new_suffix)

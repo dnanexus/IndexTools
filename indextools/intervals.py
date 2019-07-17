@@ -1,24 +1,3 @@
-"""This is a complete example of how a BAM index can be used to estimate the "density"
-of each genomic interval (16 kb size), where density is an approximate measure of the
-size in bytes (which, in turn, is roughly correlated with the number of reads).
-
-The primary use case is to partition a BAM file into N groups of intervals for parallel
-processing a BAM file across N threads.
-
-```
-from intervals import get_bam_partitions
-
-# Parallelize operations on a BAM file across many threads
-threads = 32
-
-# Get partitions of the BAM file that are roughly equal
-partitions = get_bam_partitions(bam_file, num_groups=threads)
-
-# Submit parallel jobs
-for intervals in partitions:
-    submit_job(process_bam, bam_file, intervals)
-```
-"""
 from collections import Sized
 import copy
 from enum import IntFlag
@@ -55,7 +34,8 @@ PositionComparison = Tuple[int, float, float]
 
 
 class Side(IntFlag):
-    """Side flag for use with interval searching.
+    """
+    Side flag for use with interval searching.
     """
 
     LEFT = 1
@@ -63,19 +43,27 @@ class Side(IntFlag):
 
 
 IVL = TypeVar("IVL", bound="GenomeInterval")
+BED3 = Tuple[str, int, int]
+BED6 = Tuple[str, int, int, str, int, str]
 
 
 class GenomeInterval(Sized):
-    """An interval consists of a contig, start, and end position.
-    Start and/or end may be None to signal that the interval extends to the
-    end of the contig.
+    """
+    An interval of a contig, consisting of a contig name, start position (
+    zero-indexed), and end position (non-inclusive).
 
-    Todo: How to merge annotations?
+    Args:
+        contig:
+        start: Start position. May be `None` to signal that the interval extends to the
+            beginning of the contig (i.e. position 0).
+        end: End position.  May be `None` to signal that the interval extends to the
+            end of the contig.
+
+    Todo:
+        How to merge annotations?
     """
 
-    def __init__(
-        self, contig: Union[int, str], start: int, end: int, **kwargs
-    ) -> None:
+    def __init__(self, contig: Union[int, str], start: int, end: int, **kwargs) -> None:
         if start is None:
             start = 0
         if end <= start:
@@ -145,7 +133,8 @@ class GenomeInterval(Sized):
         return f"{self.contig}:{self.start}-{self.end}"
 
     def compare(self: IVL, other: IVL) -> IntervalComparison:
-        """Rich comparison of intervals.
+        """
+        Rich comparison of intervals.
 
         Returns:
             A tuple consisting of 1) the comparison between this contig and
@@ -192,7 +181,7 @@ class GenomeInterval(Sized):
             contig_cmp,
             diff,
             min(1, overlap / len(self)),
-            min(1, (-1 * overlap) / other_len)
+            min(1, (-1 * overlap) / other_len),
         )
 
     def contig_equal(self: IVL, other: IVL) -> None:
@@ -218,8 +207,10 @@ class GenomeInterval(Sized):
                 f"Cannot merge non-overlapping/adjacent intervals {self}, {other}"
             )
         return GenomeInterval(
-            self.contig, min(self.start, other.start), max(self.end, other.end),
-            **self._merge_annotations(other)
+            self.contig,
+            min(self.start, other.start),
+            max(self.end, other.end),
+            **self._merge_annotations(other),
         )
 
     def _merge_annotations(self: IVL, other: IVL) -> dict:
@@ -294,7 +285,7 @@ class GenomeInterval(Sized):
     @classmethod
     def divide(cls: Type[IVL], ivl: IVL, *other: IVL) -> Iterator[IVL]:
         """
-        Generate new intervals by subtracting other from `ivl`.
+        Generates new intervals by subtracting `other` from `ivl`.
 
         Args:
             ivl:
@@ -336,7 +327,7 @@ class GenomeInterval(Sized):
             merged = merged.add(ivl)
         return merged
 
-    def as_bed3(self):
+    def as_bed3(self) -> BED3:
         """
         Returns this interval as a tuple in BED3 format.
 
@@ -347,7 +338,7 @@ class GenomeInterval(Sized):
 
     def as_bed6(
         self, name: Optional[str] = None, value: Optional[int] = None, strand: str = "."
-    ) -> Tuple:
+    ) -> BED6:
         """
         Returns this interval as a tuple in BED6 format.
 
@@ -365,7 +356,9 @@ class GenomeInterval(Sized):
             value = len(self)
         return self.contig, self.start, self.end, name, value, strand
 
-    def as_bed_extended(self, annotation_names: Optional[Sequence[str]], **kwargs):
+    def as_bed_extended(
+        self, annotation_names: Optional[Sequence[str]], **kwargs
+    ) -> tuple:
         """
         Returns this interval as a tuple with the first 6 columns being BED6 format
         and additional columns being annotations.
@@ -394,12 +387,13 @@ class GenomeInterval(Sized):
             "end": self.end,
             "length": len(self),
             "region": self.region,
-            "annotations": self.annotations
+            "annotations": self.annotations,
         }
 
 
 class Intervals:
-    """Collection of InterLaps (one per contig).
+    """
+    Collection of InterLaps (one per contig).
 
     Args:
         intervals: Iterable of GenomeIntervals.
@@ -410,9 +404,10 @@ class Intervals:
     """
 
     def __init__(
-        self, intervals: Iterable[GenomeInterval] = (),
+        self,
+        intervals: Iterable[GenomeInterval] = (),
         interval_type: Type[GenomeInterval] = None,
-        allows_overlapping: bool = True
+        allows_overlapping: bool = True,
     ) -> None:
         if interval_type is None:
             if intervals:
@@ -425,8 +420,9 @@ class Intervals:
         self.interval_type = interval_type
         self.interlaps = DefaultDict(
             default=functools.partial(
-                InterLap, interval_type=interval_type,
-                allows_overlapping=allows_overlapping
+                InterLap,
+                interval_type=interval_type,
+                allows_overlapping=allows_overlapping,
             )
         )
         if intervals:
@@ -499,13 +495,6 @@ class Intervals:
         return itertools.chain(self.interlaps)
 
 
-# TODO: replace InterLap with one of
-#  * https://github.com/brentp/quicksect
-#  * https://github.com/hunt-genes/ncls/
-#  * https://biocore-ntnu.github.io/pyranges/
-#  * https://github.com/lh3/cgranges
-
-
 class InterLap:
     """Fast interval overlap testing. An InterLap is based on a sorted list
     of intervals. Resorting the list is only performed when `commit` is called.
@@ -523,8 +512,9 @@ class InterLap:
     """
 
     def __init__(
-        self, interval_type: Optional[Type[GenomeInterval]] = None,
-        allows_overlapping: bool = True
+        self,
+        interval_type: Optional[Type[GenomeInterval]] = None,
+        allows_overlapping: bool = True,
     ) -> None:
         self.interval_type = interval_type
         self.allows_overlapping = allows_overlapping
@@ -533,8 +523,9 @@ class InterLap:
         self._dirty = False
 
     def add(
-        self, intervals: Union[GenomeInterval, Sequence[GenomeInterval]],
-        commit: Optional[bool] = None
+        self,
+        intervals: Union[GenomeInterval, Iterable[GenomeInterval]],
+        commit: Optional[bool] = None,
     ):
         """Add a single (or many) Intervals to the tree.
 
@@ -654,9 +645,7 @@ class InterLap:
         if side & Side.RIGHT:
             right = min(
                 len(self._iset),
-                InterLap.binsearch_right_end(
-                    self._iset, other.end, 0, len(self._iset)
-                )
+                InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
                 + 2,
             )
 

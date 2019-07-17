@@ -12,7 +12,7 @@ def commands(
     partitions_bed: ac.ReadableFile,
     group: bool = True,
     outfile: Optional[ac.WritableFile] = None,
-    jinja2: bool = False
+    jinja2: bool = False,
 ):
     """
     Generate a list commands, one per partition, given a template
@@ -30,6 +30,7 @@ def commands(
     if jinja2:
         try:
             from jinja2 import Template
+
             tmpl = Template(template)
             tmpl_fn = tmpl.render
         except ImportError:
@@ -41,9 +42,8 @@ def commands(
         itr = iter_bed_interval_groups(partitions_bed)
 
         def get_format_kwargs(ivls: Sequence[BedInterval]):
-            return {
-                "regions": ivls
-            }
+            return {"regions": ivls}
+
     else:
         itr = iter_bed_intervals(partitions_bed)
 
@@ -52,9 +52,6 @@ def commands(
 
     with open_(outfile, "wt") as out:
         for rank, item in enumerate(itr):
-            kwargs = {
-                "primary": str(primary),
-                "rank": rank,
-            }
+            kwargs = {"primary": str(primary), "rank": rank}
             kwargs.update(get_format_kwargs(item))
             print(tmpl_fn(**kwargs), file=out)

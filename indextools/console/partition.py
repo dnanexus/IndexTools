@@ -76,7 +76,7 @@ def partition(
         references,
         num_groups=partitions,
         grouping=grouping,
-        regions=regions
+        regions=regions,
     )
 
     extra_columns = None
@@ -91,7 +91,7 @@ def partition(
         outfile,
         bgzip=bgzip_outfile,
         index=index_outfile,
-        extra_columns=extra_columns
+        extra_columns=extra_columns,
     )
 
 
@@ -102,10 +102,11 @@ def child_apply(fn: Callable):
             return ",".join(str(fn(child)) for child in children)
         else:
             return "."
+
     return _apply
 
 
 ANNOTATION_FUNCTIONS = {
     "child_lengths": child_apply(lambda child: len(child)),
-    "child_volumes": child_apply(lambda child: child.volume)
+    "child_volumes": child_apply(lambda child: child.volume),
 }

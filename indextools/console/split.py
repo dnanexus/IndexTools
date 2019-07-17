@@ -15,21 +15,14 @@ class FeatureInclusion(enum.Enum):
     Enumeration of options for determining which features to include for an
     interval.
     """
-    OVERLAP = lambda start, end, read: (
-        start < read.end and end > read.start
-    )
+
+    OVERLAP = lambda start, end, read: (start < read.end and end > read.start)
     """Include any feature that overlaps at least one base of the interval."""
-    CONTAIN = lambda start, end, read: (
-        read.start >= start and read.end <= end
-    )
+    CONTAIN = lambda start, end, read: (read.start >= start and read.end <= end)
     """Include any feature that is fully contained in the interval."""
-    START = lambda start, end, read: (
-        start <= read.start <= end
-    )
+    START = lambda start, end, read: (start <= read.start <= end)
     """Include any feature whose starting position is within the interval."""
-    END = lambda start, end, read: (
-        start <= read.end <= end
-    )
+    END = lambda start, end, read: (start <= read.end <= end)
     """Include any feature whose ending position is within the interval."""
 
 
@@ -40,7 +33,7 @@ def split(
     features: FeatureInclusion = FeatureInclusion.OVERLAP,
     name_format: str = "{prefix}.{rank}.{ext}",
     output_dir: Optional[ac.WritableDir] = None,
-    contig_sizes: Optional[ac.ReadableFile] = None
+    contig_sizes: Optional[ac.ReadableFile] = None,
 ):
     """
     Split a primary file based on partitions in a BED file.
@@ -75,13 +68,11 @@ def split(
     with pysam.AlignmentFile(primary, "rb") as bam:
         for rank, ivl_list in enumerate(iter_bed_interval_groups(partitions_bed)):
             partition_bam_filename = output_dir / name_format.format(
-                rank=rank,
-                prefix=prefix,
-                ext=ext,
-                **ivl_list[0].as_dict()
+                rank=rank, prefix=prefix, ext=ext, **ivl_list[0].as_dict()
             )
 
             with pysam.AlignmentFile(partition_bam_filename, "wb", bam) as out:
+
                 def write_ivl_reads(ivl: BedInterval):
                     contig, start, end = ivl.as_bed3()
 

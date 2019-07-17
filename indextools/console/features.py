@@ -12,7 +12,7 @@ def features(
     partitions_bed: ac.ReadableFile,
     outfile: Optional[ac.WritableFile] = None,
     bgzip_outfile: bool = True,
-    index_outfile: bool = True
+    index_outfile: bool = True,
 ):
     """
     Counts the number of features per partition, given a primary file and a BED file
@@ -36,6 +36,7 @@ def features(
     partitions_iter = iter_bed_intervals(partitions_bed)
 
     with pysam.AlignmentFile(primary, "rb") as bam:
+
         def count_interval(ivl: GenomeInterval):
             def check_read(read):
                 """Check that a read starts within `ivl`.
@@ -47,6 +48,9 @@ def features(
             return count,
 
         write_intervals_bed(
-            partitions_iter, outfile, extra_columns=count_interval,
-            bgzip=bgzip_outfile, index=index_outfile
+            partitions_iter,
+            outfile,
+            extra_columns=count_interval,
+            bgzip=bgzip_outfile,
+            index=index_outfile,
         )
