@@ -388,7 +388,8 @@ class GenomeInterval(Sized):
 
 class Intervals:
     """
-    Collection of InterLaps (one per contig).
+    Wrapper around a cranges that also stores `GenomeInterval`s by their
+    (chromsome, start, end).
 
     Args:
         intervals: Iterable of GenomeIntervals.
@@ -426,7 +427,7 @@ class Intervals:
             self._cr.add(*key)
             self._intervals[key] = interval
 
-    def close(self):
+    def close(self) -> None:
         if not self.closed:
             self._cr.index()
             self._closed = True
@@ -440,6 +441,9 @@ class Intervals:
 
         Args:
             interval: The interval to search.
+
+        Returns:
+            An iterator over the overlapping intervals.
         """
         if not self.closed:
             raise RuntimeError("Cannot call 'find()' before calling 'close()'.")
