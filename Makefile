@@ -11,7 +11,6 @@ all:
 	$(TEST)
 
 install:
-	cd cgranges && python setup.py bdist_wheel
 	$(BUILD)
 
 test:

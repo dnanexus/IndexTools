@@ -13,8 +13,7 @@ from typing import (
     cast,
 )
 
-from ngsindex.utils import DefaultDict
-from quicksect import Interval, IntervalTree
+import cgranges as cr
 
 
 BGZF_BLOCK_SIZE = 2 ** 16
@@ -43,7 +42,7 @@ BED3 = Tuple[str, int, int]
 BED6 = Tuple[str, int, int, str, int, str]
 
 
-class GenomeInterval(Interval, Sized):
+class GenomeInterval(Sized):
     """
     An interval of a contig, consisting of a contig name, start position (
     zero-indexed), and end position (non-inclusive).
@@ -64,8 +63,9 @@ class GenomeInterval(Interval, Sized):
             start = 0
         if end <= start:
             raise ValueError(f"'end' must be >= 'start'; {end} <= {start}")
-        super().__init__(start, end)
         self.contig = contig
+        self.start = start
+        self.end = end
         self.annotations = kwargs
 
     @property
@@ -392,12 +392,22 @@ class Intervals:
 
     Args:
         intervals: Iterable of GenomeIntervals.
+        close: Whether to generate the index; if True, no additional intervals
+            can be added. Ignored if `intervals` is None.
     """
 
-    def __init__(self, intervals: Optional[Iterable[GenomeInterval]] = None):
-        self.interval_trees = DefaultDict(default=IntervalTree)
+    def __init__(
+        self,
+        intervals: Optional[Iterable[GenomeInterval]] = None,
+        close: Optional[bool] = True
+    ):
+        self._cr = cr.cgranges()
+        self._intervals = {}
+        self._closed = False
         if intervals:
             self.add_all(intervals)
+            if close:
+                self.close()
 
     def add_all(self, intervals: Iterable[GenomeInterval]) -> None:
         """Add all intervals from an iterable of GenomeIntervals.
@@ -405,20 +415,25 @@ class Intervals:
         Args:
             intervals: The intervals to add.
         """
+        if self.closed:
+            raise RuntimeError("Cannot add intervals after calling 'close()' method.")
         for interval in intervals:
-            self.interval_trees[interval.contig].insert(interval)
+            key = interval.as_bed3()
+            # For now, prevent the addition of duplicate intervals. Could be changed
+            # to dynamically create a list to contain duplicates.
+            if key in self._intervals:
+                raise ValueError(f"Cannot add duplicate interval {interval}")
+            self._cr.add(*key)
+            self._intervals[key] = interval
+
+    def close(self):
+        if not self.closed:
+            self._cr.index()
+            self._closed = True
 
     @property
-    def contigs(self) -> Sequence[str]:
-        return tuple(self.interval_trees.keys())
-
-    def __contains__(self, contig: str) -> bool:
-        return contig in self.interval_trees
-
-    def get(self, contig: str) -> IntervalTree:
-        if contig not in self:
-            raise ValueError("Contig not found: {}".format(contig))
-        return self.interval_trees[contig]
+    def closed(self) -> bool:
+        return self._closed
 
     def find(self, interval: GenomeInterval) -> Iterator[GenomeInterval]:
         """Find intervals that overlap `interval`.
@@ -426,7 +441,8 @@ class Intervals:
         Args:
             interval: The interval to search.
         """
+        if not self.closed:
+            raise RuntimeError("Cannot call 'find()' before calling 'close()'.")
         contig = interval.contig
-        if contig not in self:
-            return
-        yield from self.interval_trees[contig].find(interval)
+        for start, end, _ in self._cr.overlap(*interval.as_bed3()):
+            yield self._intervals[(contig, start, end)]
