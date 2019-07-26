@@ -162,6 +162,17 @@ class Regions:
         return intervals
 
     def _create_interval(self, region: Region) -> GenomeInterval:
+        """
+        Given a region tuple, create a GenomeInterval.
+        Also check that the contig exists in the reference
+
+        Args:
+            region: tuple containing the (chromosome, start and end). End can be an int or "*"
+
+        Returns:
+            A GenomeInterval with the contig, start and end
+
+        """
         contig, start, end = region
         if end == "*":
             if contig in self._references:
