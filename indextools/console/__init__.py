@@ -1,11 +1,6 @@
 """IndexTools command line interface.
 """
-from indextools.console import (
-    partition,
-    features,
-    split,
-    commands
-)
+from indextools.console import partition, features, split, commands
 from indextools.regions import Regions, parse_region
 
 import autoclick as ac
@@ -23,7 +18,7 @@ COMMON_SHORT_NAMES = {
     "contig": "c",
     "exclude_contig": "C",
     "targets": "t",
-    "exclude_targets": "T"
+    "exclude_targets": "T",
 }
 
 
@@ -40,10 +35,7 @@ ac.set_global("add_composite_prefixes", False)
 
 # Register conversion functions
 ac.conversion(decorated=parse_region)
-ac.composite_type(
-    decorated=Regions,
-    short_names=COMMON_SHORT_NAMES
-)
+ac.composite_type(decorated=Regions, short_names=COMMON_SHORT_NAMES)
 
 
 @ac.group()
@@ -55,39 +47,24 @@ def indextools():
 # from an index.
 indextools.command(
     decorated=partition.partition,
-    types={
-        "slop": ac.DelimitedList(int)
-    },
-    validations={
-        ("primary", "contig_sizes"): ac.defined_ge(1)
-    },
-    short_names=merge_short_names({
-        "partitions": "n",
-        "grouping": "g"
-    })
+    types={"slop": ac.DelimitedList(int)},
+    validations={("primary", "contig_sizes"): ac.defined_ge(1)},
+    short_names=merge_short_names({"partitions": "n", "grouping": "g"}),
 )
 
 
 # Count the features (e.g. reads, variants) in a primary file
 # within partitions (e.g. output by the 'partition' command).
-indextools.command(
-    decorated=features.features
-)
+indextools.command(decorated=features.features)
 
 
 # Split a primary file (e.g. BAM, VCF) into chunks based on
 # a partition BED file (e.g. output by the 'partition' command).
 indextools.command(
     decorated=split.split,
-    types={
-        "slop": ac.DelimitedList(int)
-    },
-    validations={
-        "slop": ac.SequenceLength(1, 2)
-    },
-    short_names=merge_short_names({
-        "slop": "s"
-    })
+    types={"slop": ac.DelimitedList(int)},
+    validations={"slop": ac.SequenceLength(1, 2)},
+    short_names=merge_short_names({"slop": "s"}),
 )
 
 
