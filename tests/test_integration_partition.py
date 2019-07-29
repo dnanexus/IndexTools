@@ -1,5 +1,4 @@
 from indextools.console import partition
-from pathlib import Path
 import filecmp
 import pytest
 

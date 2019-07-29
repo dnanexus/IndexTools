@@ -1,9 +1,6 @@
 from collections import Sized
 import copy
 from enum import IntFlag
-import functools
-import itertools
-import operator
 from typing import (
     Iterable,
     Iterator,
@@ -16,9 +13,7 @@ from typing import (
     cast,
 )
 
-from indextools.utils import OrderedSet
-
-from ngsindex.utils import DefaultDict
+import cgranges as cr
 
 
 BGZF_BLOCK_SIZE = 2 ** 16
@@ -393,323 +388,65 @@ class GenomeInterval(Sized):
 
 class Intervals:
     """
-    Collection of InterLaps (one per contig).
+    Wrapper around a cranges that also stores `GenomeInterval`s by their
+    (chromsome, start, end).
 
     Args:
         intervals: Iterable of GenomeIntervals.
-        interval_type: Type of Interval that will be added. If None, is
-            auto-detected from the first interval that is added.
-        allows_overlapping: Whether overlapping intervals can be added,
-            or if overlapping intervals are merged.
+        close: Whether to generate the index; if True, no additional intervals
+            can be added. Ignored if `intervals` is None.
     """
 
     def __init__(
         self,
-        intervals: Iterable[GenomeInterval] = (),
-        interval_type: Type[GenomeInterval] = None,
-        allows_overlapping: bool = True,
-    ) -> None:
-        if interval_type is None:
-            if intervals:
-                intervals = list(intervals)
-                interval_type = type(intervals[0])
-            else:
-                raise ValueError(
-                    "Either 'interval_type' or 'intervals' must be specified."
-                )
-        self.interval_type = interval_type
-        self.interlaps = DefaultDict(
-            default=functools.partial(
-                InterLap,
-                interval_type=interval_type,
-                allows_overlapping=allows_overlapping,
-            )
-        )
+        intervals: Optional[Iterable[GenomeInterval]] = None,
+        close: Optional[bool] = True
+    ):
+        self._cr = cr.cgranges()
+        self._intervals = {}
+        self._closed = False
         if intervals:
             self.add_all(intervals)
-
-    @property
-    def contigs(self) -> Sequence[str]:
-        return tuple(self.interlaps.keys())
+            if close:
+                self.close()
 
     def add_all(self, intervals: Iterable[GenomeInterval]) -> None:
         """Add all intervals from an iterable of GenomeIntervals.
+
+        Args:
+            intervals: The intervals to add.
         """
-        modified = set()
+        if self.closed:
+            raise RuntimeError("Cannot add intervals after calling 'close()' method.")
         for interval in intervals:
-            self.interlaps[interval.contig].add(interval)
-            modified.add(interval.contig)
-        for contig in modified:
-            self.interlaps[contig].commit()
+            key = interval.as_bed3()
+            # For now, prevent the addition of duplicate intervals. Could be changed
+            # to dynamically create a list to contain duplicates.
+            if key in self._intervals:
+                raise ValueError(f"Cannot add duplicate interval {interval}")
+            self._cr.add(*key)
+            self._intervals[key] = interval
+
+    def close(self) -> None:
+        if not self.closed:
+            self._cr.index()
+            self._closed = True
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
 
     def find(self, interval: GenomeInterval) -> Iterator[GenomeInterval]:
         """Find intervals that overlap `interval`.
-        """
-        contig = interval.contig
-        if contig not in self.interlaps:
-            return
-        yield from self.interlaps[contig].find(interval)
-
-    def intersect(self, interval: GenomeInterval) -> Iterator[GenomeInterval]:
-        """Iterate over intersections with `interval`. Intersection is like
-        find except that the yielded intervals include only the intersected
-        portions.
-        """
-        contig = interval.contig
-        if contig not in self.interlaps:
-            return
-        yield from self.interlaps[contig].intersect(interval)
-
-    def intersect_all(
-        self, intervals: Iterable[GenomeInterval]
-    ) -> Iterator[GenomeInterval]:
-        """Iterate over intersections with all `intervals`.
-        """
-        intersections = OrderedSet()
-        for ivl in intervals:
-            intersections.update(self.intersect(ivl))
-        yield from intersections
-
-    def closest(
-        self, interval: GenomeInterval, side: int = Side.LEFT | Side.RIGHT
-    ) -> Iterator[GenomeInterval]:
-        """Find the closest interval(s) to `interval.
-        """
-        contig = interval.contig
-        if contig not in self.interlaps:
-            return
-        yield from self.interlaps[contig].closest(other=interval, side=side)
-
-    def __len__(self):
-        return sum(len(ilap) for ilap in self.interlaps.values())
-
-    def __contains__(self, interval: GenomeInterval) -> bool:
-        """Returns True if `interval` intersects any intervals.
-        """
-        contig = interval.contig
-        if contig not in self.interlaps:
-            return False
-        return interval in self.interlaps[contig]
-
-    def __iter__(self) -> Iterator[GenomeInterval]:
-        return itertools.chain(self.interlaps)
-
-
-class InterLap:
-    """Fast interval overlap testing. An InterLap is based on a sorted list
-    of intervals. Resorting the list is only performed when `commit` is called.
-    Overlap testing without first 'committing' any added intervals will probably
-    yield incorrect results.
-
-    Args:
-        interval_type: Type of Interval that will be added. If None, is
-            auto-detected from the first interval that is added.
-        allows_overlapping: Whether overlapping intervals can be added,
-            or if overlapping intervals are merged.
-
-    See:
-        Adapted from https://github.com/brentp/interlap.
-    """
-
-    def __init__(
-        self,
-        interval_type: Optional[Type[GenomeInterval]] = None,
-        allows_overlapping: bool = True,
-    ) -> None:
-        self.interval_type = interval_type
-        self.allows_overlapping = allows_overlapping
-        self._iset = []
-        self._maxlen = 0
-        self._dirty = False
-
-    def add(
-        self,
-        intervals: Union[GenomeInterval, Iterable[GenomeInterval]],
-        commit: Optional[bool] = None,
-    ):
-        """Add a single (or many) Intervals to the tree.
 
         Args:
-            intervals: An interval or sequence of intervals.
-            commit: Whether these additions should be immediately committed.
+            interval: The interval to search.
+
+        Returns:
+            An iterator over the overlapping intervals.
         """
-        if isinstance(intervals, GenomeInterval):
-            intervals = [intervals]
-        if self.interval_type is None:
-            self.interval_type = type(intervals[0])
-        if self.allows_overlapping:
-            self._iset.extend(intervals)
-            self._dirty = True
-            if commit:
-                self.commit()
-        elif commit is False:
-            raise ValueError(
-                "Cannot set commit=False for InterLaps in which overlapping "
-                "intervals are not allowed."
-            )
-        else:
-            if self._dirty:
-                self.commit()
-            for ivl in intervals:
-                overlapping = self.find(ivl)
-                if overlapping:
-                    ovl_list = list(overlapping)
-                    for overlapping_ivl in ovl_list:
-                        self._iset.remove(overlapping_ivl)
-                    ovl_list.append(ivl)
-                    ivl = GenomeInterval.merge(ovl_list)
-                self._iset.append(ivl)
-                self._resort()
-
-    def commit(self) -> None:
-        """Commit additions to this InterLap. This just means updating the
-        _maxlen attribute and resorting the _iset list.
-        """
-        if self._dirty:
-            self._resort()
-            self._dirty = False
-
-    def _resort(self):
-        self._iset.sort()
-        self._maxlen = max(len(r) for r in self._iset)
-
-    def __len__(self) -> int:
-        """Return number of intervals."""
-        return len(self._iset)
-
-    def __iter__(self) -> Iterator[GenomeInterval]:
-        return iter(self._iset)
-
-    def __contains__(self, other: GenomeInterval) -> bool:
-        """Indicate whether `other` overlaps any elements in the tree.
-        """
-        left = InterLap.binsearch_left_start(
-            self._iset, other.start - self._maxlen, 0, len(self._iset)
-        )
-        # Use a shortcut, since often the found interval will overlap.
-        max_search = 8
-        if left == len(self._iset):
-            return False
-        for left_ivl in self._iset[left:(left + max_search)]:
-            if left_ivl in other:
-                return True
-            if left_ivl.start > other.end:
-                return False
-
-        r = InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
-        return any(s in other for s in self._iset[(left + max_search):r])
-
-    def find(self, other: GenomeInterval) -> Iterator[GenomeInterval]:
-        """Returns an iterable of elements that overlap `other` in the tree.
-        """
-        left = InterLap.binsearch_left_start(
-            self._iset, other.start - self._maxlen, 0, len(self._iset)
-        )
-        right = InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
-        iopts = self._iset[left:right]
-        yield from (s for s in iopts if s in other)
-
-    def intersect(self, other: GenomeInterval) -> Iterator[GenomeInterval]:
-        """Like find, but the result is an iterable of new interval objects that
-        cover only the intersecting regions.
-        """
-        for ivl in self.find(other):
-            pos = sorted((ivl.start, ivl.end, other.start, other.end))
-            yield self.interval_type(ivl.contig, pos[1], pos[2])
-
-    def closest(
-        self, other: GenomeInterval, side: int = Side.LEFT | Side.RIGHT
-    ) -> Iterator[GenomeInterval]:
-        """Returns an iterable of the closest interval(s) to `other`.
-
-        Args:
-            other: The interval to search.
-            side: A bitwise combination of LEFT, RIGHT.
-
-        Yields:
-            If side == LEFT or RIGHT, the  single closest interval on the
-            specified side is yielded.  If side == LEFT | RIGHT, all intervals
-            that are equidistant on the left  and right side are yielded.
-        """
-        left = None
-        if side & Side.LEFT:
-            left = max(
-                0,
-                InterLap.binsearch_left_start(
-                    self._iset, other.start - self._maxlen, 0, len(self._iset)
-                )
-                - 1,
-            )
-
-        right = None
-        if side & Side.RIGHT:
-            right = min(
-                len(self._iset),
-                InterLap.binsearch_right_end(self._iset, other.end, 0, len(self._iset))
-                + 2,
-            )
-
-        if side == Side.LEFT | Side.RIGHT:
-            # Expand candidates to include all left intervals with the same end
-            # position and all right right intervals with the same start
-            # position as the nearest.
-
-            while left > 1 and self._iset[left].end == self._iset[left + 1].end:
-                left -= 1
-
-            while (
-                right < len(self._iset)
-                and self._iset[right - 1].start == self._iset[right].start
-            ):
-                right += 1
-
-            iopts = self._iset[left:right]
-            ovls = [s for s in iopts if s in other]
-            if ovls:
-                # Yield all candidate intervals that overlap `other`
-                yield from ovls
-            else:
-                #
-                iopts = sorted([(abs(i - other), i) for i in iopts])
-                _, g = next(iter(itertools.groupby(iopts, operator.itemgetter(0))))
-                for _, ival in g:
-                    yield ival
-        else:
-            if side == Side.LEFT:
-                ivl = self._iset[left]
-            else:
-                ivl = self._iset[right - 1]
-            if ivl != other:
-                yield ivl
-
-    @staticmethod
-    def binsearch_left_start(
-        intervals: Sequence[GenomeInterval], x: int, lo: int, hi: int
-    ) -> int:
-        """Like python's bisect_left, but finds the _lowest_ index where the value x
-        could be inserted to maintain order in the list intervals.
-        """
-        while lo < hi:
-            mid = (lo + hi) // 2
-            f = intervals[mid]
-            if f.start < x:
-                lo = mid + 1
-            else:
-                hi = mid
-        return lo
-
-    @staticmethod
-    def binsearch_right_end(
-        intervals: Sequence[GenomeInterval], x: int, lo: int, hi: int
-    ) -> int:
-        """Like python's bisect_right, but finds the _highest_ index where the value
-        x could be inserted to maintain order in the list intervals.
-        """
-        while lo < hi:
-            mid = (lo + hi) // 2
-            f = intervals[mid]
-            if x < f.start:
-                hi = mid
-            else:
-                lo = mid + 1
-        return lo
+        if not self.closed:
+            raise RuntimeError("Cannot call 'find()' before calling 'close()'.")
+        contig = interval.contig
+        for start, end, _ in self._cr.overlap(*interval.as_bed3()):
+            yield self._intervals[(contig, start, end)]

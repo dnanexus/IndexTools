@@ -2,12 +2,8 @@ import os
 from pathlib import Path
 from typing import (
     Dict,
-    Generic,
-    Iterable,
-    Iterator,
     Sequence,
     Tuple,
-    TypeVar,
     Union,
     cast,
 )
@@ -18,31 +14,6 @@ from xphyle.utils import read_delimited
 
 class FileFormatError(Exception):
     pass
-
-
-T = TypeVar("T")
-
-
-class OrderedSet(Generic[T]):
-    """
-    Simple set (does not implement the full set API) based on dict that
-    maintains addition order.
-    """
-
-    def __init__(self, items: Iterable[T] = None) -> None:
-        self.items = {}
-        if items:
-            self.update(items)
-
-    def add(self, item: T) -> None:
-        self.items[item] = True
-
-    def update(self, items: Iterable[T]) -> None:
-        for item in items:
-            self.items[item] = True
-
-    def __iter__(self) -> Iterator[T]:
-        return iter(self.items.keys())
 
 
 class References:
