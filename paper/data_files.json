@@ -1,21 +1,3 @@
 {
-  "wgs": {
-    "bam":  {
-      "$dnanexus_link": "file-FfG08b803YYfZZ3GGKbZYQbX"
-    },
-    "bai": {
-      "$dnanexus_link": "file-FfKy4X80GJxvGx711f4qpJf1"
-    },
-    "beds": {
-      "split_chr": {
-        "$dnanexus_link": "file-FfK0Vx00jfjy5QjVF61Zfy3P"
-      },
-      "split_n": {
-        "$dnanexus_link": "file-Ff8fJP80jfjY2x479g8kpJVp"
-      },
-      "split_1Mb": {
-        "$dnanexus_link": "file-FfK0ZqQ0jfjYzqYk6jFvxBbZ"
-      }
-    }
-  }
+  "exome": "xxx"
 }
