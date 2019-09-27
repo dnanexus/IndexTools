@@ -2,19 +2,18 @@ repo = dnanexus/IndexTools
 package = indextools
 version = 0.1.2
 tests = tests
+pytestopts = -s -vv --show-capture=all
 
-BUILD = poetry build && pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
-TEST = pytest $(pytestops) $(tests)
+all: clean install test
 
-all:
-	$(BUILD)
-	$(TEST)
-
-install:
-	$(BUILD)
+install: clean
+	poetry build
+	pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
 
 test:
-	$(TEST)
+	coverage run -m pytest $(pytestopts) $(tests)
+	coverage report -m
+	coverage xml
 
 lint:
 	flake8 $(package)
@@ -42,17 +41,24 @@ docker:
 	docker login -u jdidion && \
 	docker push $(repo)
 
-release:
-	$(clean)
-	# build
-	$(BUILD)
-	$(TEST)
+tag:
+	git tag $(version)
+
+push_tag:
+	git push origin --tags
+
+del_tag:
+	git tag -d $(version)
+
+pypi_release:
 	# bump version
 	poetry version $(dunamai from git --no-metadata --style semver)
 	# publish
 	poetry publish
-	# push new tag after successful build
-	git push origin --tags
+
+release: clean tag
+	${MAKE} install test pypi_release push_tag || (${MAKE} del_tag && exit 1)
+
 	# create release in GitHub
 	curl -v -i -X POST \
 		-H "Content-Type:application/json" \
