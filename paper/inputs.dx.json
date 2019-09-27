@@ -1,0 +1,21 @@
+{
+  "stage-common.bam": {
+    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+  },
+  "stage-common.bai": {
+    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+  },
+  "stage-common.contig_sizes": {
+    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+  },
+  "stage-common.reference_fasta_targz": {
+    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+  },
+  "stage-common.reference_genome_id": "GRCh38",
+  "stage-common.intervals_bed": {
+    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+  },
+  "stage-common.output_prefix": "test",
+  "stage-common.indextools_docker_image": "docker-image",
+  "stage-common.gatk_docker_image": "docker-image"
+}
