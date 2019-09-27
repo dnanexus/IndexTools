@@ -17,8 +17,9 @@ def main():
 @main.command()
 def launch(
     data_files: Path,
+    bed_files: Path,
     template: Path,
-    workflow_id: str,
+    workflow_id: str = "gatk_benchmark.wdl",
     input_stage_id: str = "stage-common",
     output_folder: str = "/benchmark_results",
     summary_file: Path = Path.cwd() / "summary.json",
@@ -40,11 +41,14 @@ def launch(
     with open(data_files, "rt") as inp:
         data = json.load(inp)
 
+    with open(bed_files) as inp:
+        beds = json.load(inp)
+
     with open(template, "rt") as inp:
         tmpl = json.load(inp)
 
     if batch_id is None:
-        batch_id = str(uuid.uuid4())
+        batch_id = uuid.uuid4()
 
     workflow = dxpy.DXWorkflow(workflow_id)
 
@@ -56,7 +60,6 @@ def launch(
     }
 
     for data_name, data_val in data.items():
-        beds = data_val.pop("beds")
         for bed_name, bed_val in beds.items():
             prefix = f"{data_name}_{bed_name}"
             analysis = copy.copy(tmpl)
@@ -88,9 +91,8 @@ def launch(
         )
         analysis["analysis_id"] = dxanalysis.get_id()
 
-    #with open(summary_file, "wt") as out:
-    import sys
-    json.dump(summary, sys.stdout)
+    with open(summary_file, "wt") as out:
+        json.dump(summary, out)
 
 
 @main.command()

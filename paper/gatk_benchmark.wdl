@@ -11,22 +11,15 @@ workflow gatk_benchmark {
     File reference_fasta_targz
     File? intervals_bed
     String output_prefix
-    String? indextools_docker_image
-    String? gatk_docker_image
+    String indextools_docker_image
+    String gatk_docker_image
   }
-
-  String default_indextools_docker_image = select_first([
-    indextools_docker_image, "dnanexus/indextools:0.1.3"
-  ])
-  String default_gatk_docker_image = select_first([
-    gatk_docker_image, "dnanexus/gatk:gatk-4.1.3.0_hts-1.9"
-  ])
 
   if (!defined(bai)) {
     call index_bam {
       input:
         bam = bam,
-        docker_image = default_gatk_docker_image
+        docker_image = gatk_docker_image
     }
   }
 
@@ -40,7 +33,7 @@ workflow gatk_benchmark {
           contig_sizes = contig_sizes,
           partitions = 36,
           output_prefix = output_prefix,
-          docker_image = default_indextools_docker_image
+          docker_image = indextools_docker_image
       }
     }
     if (!defined(contig_sizes)) {
@@ -50,7 +43,7 @@ workflow gatk_benchmark {
           bam = bam,
           partitions = 36,
           output_prefix = output_prefix,
-          docker_image = default_indextools_docker_image
+          docker_image = indextools_docker_image
       }
     }
   }
@@ -67,13 +60,12 @@ workflow gatk_benchmark {
       reference_fasta_targz = reference_fasta_targz,
       intervals_bed = actual_intervals_bed,
       output_prefix = output_prefix,
-      docker_image = default_gatk_docker_image
+      docker_image = gatk_docker_image
   }
 
   output {
     File vcf = gatk.vcf
     File tbi = gatk.tbi
-    File intervals = actual_intervals_bed
   }
 }
 
@@ -103,10 +95,11 @@ task indextools_partition {
     File? contig_sizes
     Int partitions
     String? output_prefix
-    String docker_image
+    String? docker_image
   }
 
   String default_output_prefix = select_first([output_prefix, basename(bai, ".bam.bai")])
+  String default_docker_image = "dnanexus/indextools:0.1.2"
 
   command <<<
   indextools partition -I ~{bai} \
@@ -121,6 +114,6 @@ task indextools_partition {
   }
 
   runtime {
-    docker: docker_image
+    docker: default_docker_image
   }
 }
