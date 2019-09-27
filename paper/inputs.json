@@ -1,0 +1,11 @@
+{
+  "gatk_benchmark.bam": "dx://file-BQf7xv00b23p7JJVX0vQgZX3",
+  "gatk_benchmark.bai": "dx://file-BQf7xv00b23p7JJVX0vQgZX3",
+  "gatk_benchmark.contig_sizes": "dx://file-BQf7xv00b23p7JJVX0vQgZX3",
+  "gatk_benchmark.reference_genome_id": "GRCh38.no_alt_analysis_set",
+  "gatk_benchmark.reference_fasta_targz": "file-Ff77Z4j0jfjy967QPqP0003b",
+  "gatk_benchmark.intervals_bed": "dx://file-BQf7xv00b23p7JJVX0vQgZX3",
+  "gatk_benchmark.output_prefix": "test",
+  "gatk_benchmark.indextools_docker_image": "docker-image",
+  "gatk_benchmark.gatk_docker_image": "docker-image"
+}
