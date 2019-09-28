@@ -6,8 +6,16 @@ pytestopts = -s -vv --show-capture=all
 
 all: clean install test
 
-install: clean
+build_cgranges:
+	cd cgranges \
+	&& python setup.py build_ext -i \
+	&& python setup.py bdist_wheel \
+	&& mv dist/*.whl dist/cgranges.whl
+
+build: clean build_cgranges
 	poetry build
+
+install: build
 	pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
 
 test:
@@ -25,12 +33,14 @@ reformat:
 clean:
 	rm -Rf __pycache__
 	rm -Rf **/__pycache__/*
-	rm -Rf **/*.c
 	rm -Rf **/*.so
 	rm -Rf **/*.pyc
 	rm -Rf dist
 	rm -Rf build
 	rm -Rf $(package).egg-info
+	rm -Rf cgranges/build
+	rm -Rf cgranges/dist
+	rm -Rf cgranges/*.egg-info
 
 docker:
 	# build

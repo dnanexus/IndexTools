@@ -8,9 +8,13 @@ readme = "README.md"
 homepage = "https://github.com/dnanexus/indextools"
 repository = "https://github.com/dnanexus/indextools.git"
 classifiers = ["Development Status :: 4 - Beta"]
+packages = [
+  {include = "indextools"},
+  {include = "cgranges"}
+]
 include = [
   "AUTHORS.md",
-  "CHANGES.md",
+  "CHANGES.md"
 ]
 
 [tool.poetry.dependencies]
@@ -19,6 +23,7 @@ autoclick = "^0.6.0"
 ngsindex = "^0.1.7"
 pysam = "^0.15"
 xphyle = "^4.0.8"
+cgranges = {path = "./cgranges"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
