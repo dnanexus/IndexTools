@@ -9,14 +9,16 @@ all: clean install test
 build_cgranges:
 	cd cgranges \
 	&& python setup.py build_ext -i \
-	&& python setup.py bdist_wheel \
-	&& mv dist/*.whl dist/cgranges.whl
+	&& python setup.py bdist_wheel
 
-build: clean build_cgranges
+install_cgranges: build_cgranges
+	pip install --upgrade cgranges/dist/cgranges*.whl
+
+build: clean
 	poetry build
 
 install: build
-	pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
+	pip install --upgrade dist/$(package)-$(version)-*.whl $(installargs)
 
 test:
 	coverage run -m pytest $(pytestopts) $(tests)
