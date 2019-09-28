@@ -1,4 +1,4 @@
-FROM python:3.7-slim-stretch
+FROM python:3.6-slim-stretch
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH "/root/.poetry/bin:$PATH"

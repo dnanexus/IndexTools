@@ -17,10 +17,16 @@ install_cgranges: build_cgranges
 build: clean
 	poetry build
 
+lock:
+	poetry lock
+
 install: build
 	pip install --upgrade dist/$(package)-$(version)-*.whl $(installargs)
 
-test:
+install_test_deps:
+	pip install -r requirements-test.txt
+
+test: install_test_deps
 	coverage run -m pytest $(pytestopts) $(tests)
 	coverage report -m
 	coverage xml
@@ -50,7 +56,8 @@ docker:
 	# add alternate tags
 	docker tag $(repo):$(version) $(repo):latest
 	# push to Docker Hub
-	docker login -u jdidion && \
+	# requires user to be logged in to account with
+	# permissions to push to $(repo)
 	docker push $(repo)
 
 tag:
