@@ -50,14 +50,14 @@ push_tag:
 del_tag:
 	git tag -d $(version)
 
-pypi_release:
-	# bump version
+set_version:
 	poetry version $(dunamai from git --no-metadata --style semver)
-	# publish
+
+pypi_release:
 	poetry publish
 
 release: clean tag
-	${MAKE} install test pypi_release push_tag || (${MAKE} del_tag && exit 1)
+	${MAKE} set_version install test pypi_release push_tag || (${MAKE} del_tag set_version && exit 1)
 
 	# create release in GitHub
 	curl -v -i -X POST \

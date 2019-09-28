@@ -16,7 +16,6 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.6"
 autoclick = "^0.6.0"
-cgranges = { git = "https://github.com/lh3/cgranges.git", branch = "master" }
 ngsindex = "^0.1.7"
 pysam = "^0.15"
 xphyle = "^4.0.8"
@@ -24,7 +23,6 @@ xphyle = "^4.0.8"
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
 pytest-cov = "^2.7"
-black = {version = "^19.3b0",allows-prereleases = true}
 pytest-datadir-ng = "^1.1"
 
 [tool.poetry.extras]
