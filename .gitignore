@@ -132,3 +132,8 @@ dmypy.json
 
 # poetry
 poetry.lock
+
+cgranges/*.so
+cgranges/*.egg-info
+cgranges/dist
+cgranges/build
