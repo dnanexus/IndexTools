@@ -1,3 +1,4 @@
+indextools>=0.1.3
 autoclick
 dxpy
 tqdm
