@@ -1,9 +1,9 @@
 {
   "contig_sizes": {
-    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+    "$dnanexus_link": "file-Ff8f34Q0jfjzGy8x9gQzq31y"
   },
   "reference_fasta_targz": {
-    "$dnanexus_link": "file-BQf7xv00b23p7JJVX0vQgZX3"
+    "$dnanexus_link": "file-Ff77Z4j0jfjy967QPqP0003b"
   },
   "reference_genome_id": "GRCh38",
   "indextools_docker_image": "docker-image",
