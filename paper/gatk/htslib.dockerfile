@@ -35,17 +35,3 @@ RUN apt update \
 	&& cd / \
 	&& cp -r /tmp/apps/htslib /usr/local \
 	&& rm -Rf /tmp/apps
-
-ARG GATK_VERSION
-
-FROM broadinstitute/gatk:${GATK_VERSION}
-
-ENV LANG C.UTF-8
-
-RUN apt update \
-  && apt install -y libcurl4-openssl-dev libncurses-dev
-
-COPY --from=hts /usr/local/bin/samtools /usr/local/bin
-COPY --from=hts /usr/local/bin/bcftools /usr/local/bin
-COPY --from=hts /usr/local/bin/bgzip /usr/local/bin
-COPY --from=hts /usr/local/bin/tabix /usr/local/bin
