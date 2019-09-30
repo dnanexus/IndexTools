@@ -8,19 +8,28 @@
 ## Setup
 
 1. Build the GATK Docker image:
-    ```
-    cd gatk \
+    ```commandline
+    $ cd gatk \
     && export HTS_VERSION=1.9 \
-    && export GATK_VERSION=4.1.2.0 \
+    && export GATK_VERSION=4.1.3.0 \
+    && docker build \
+      --build-arg HTS_VERSION=$HTS_VERSION \
+      -t dnanexus/htslib:$HTS_VERSION \
+      -f htslib.dockerfile . \
     && docker build \
       --build-arg HTS_VERSION=$HTS_VERSION \
       --build-arg GATK_VERSION=$GATK_VERSION \
-      -t indextools/gatk:gatk-$GATK_VERSION-hts-$HTS_VERSION .
+      -t dnanexus/gatk:gatk-$GATK_VERSION_hts-$HTS_VERSION \
+      -f gatk.dockerfile .
     ```
 2. If running on DNAnexus:
-    * Ensure the Docker image is stored as a file on the platform
+    * Ensure the Docker images stored as a file on the platform:
+        ```commandline
+        $ docker save -o dnanexus-indextools-0.1.3.tar dnanexus/indextools:0.1.3 \
+        && docker save -o dnanexus-gatk-4.1.3.0.tar dnanexus/gatk:gatk-4.1.3.0_hts-1.9 \
+        && dx upload dnanexus-*.tar
+        ```
     * Compile the GATK workflow using dxWDL:
-    
         ```commandline
         $ java -jar $DXWDL_JAR compile gatk_benchmark.wdl \
           -project $DXWDL_PROJECT \
