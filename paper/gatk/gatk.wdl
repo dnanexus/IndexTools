@@ -8,14 +8,11 @@ workflow gatk {
     File reference_fasta_targz
     File intervals_bed
     String? output_prefix
-    String? docker_image
+    String docker_image
   }
 
   String default_output_prefix = select_first([
     output_prefix, basename(bam, ".bam")
-  ])
-  String default_docker_image = select_first([
-    docker_image, "indextools/gatk:gatk-4.1.2.0-hts-1.9"
   ])
 
   call haplotype_caller as gatk_hc {
@@ -26,7 +23,7 @@ workflow gatk {
       reference_fasta_targz = reference_fasta_targz,
       intervals_bed = intervals_bed,
       output_prefix = default_output_prefix,
-      docker_image = default_docker_image
+      docker_image = docker_image
   }
 
   output {
