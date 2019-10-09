@@ -51,6 +51,8 @@ clean:
 	rm -Rf cgranges/*.egg-info
 
 docker:
+	# update lockfile
+	poetry lock
 	# build
 	docker build -f Dockerfile -t $(repo):$(version) .
 	# add alternate tags
