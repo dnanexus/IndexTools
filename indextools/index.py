@@ -27,6 +27,8 @@ class IntervalGrouping(Enum):
     """Group together equal numbers of consecutive intervals."""
     ROUND_ROBIN = 2
     """Distribute intervals to groups in a round-robin fashion."""
+    LPT = 3
+    """Use the Longest Processing Time (LPT) algorithm to distribute intervals."""
 
 
 class VolumeInterval(GenomeInterval):
@@ -304,47 +306,81 @@ def group_intervals(
         ivls = new_intervals
         num_intervals = len(ivls)
 
-    if grouping == IntervalGrouping.NONE:
+    if num_intervals == num_groups or grouping == IntervalGrouping.NONE:
         return ivls
-    elif grouping == IntervalGrouping.ROUND_ROBIN:
-        # This code will distribute groups round-robin, so each partition will have
-        # a large number of small groups
+
+    if grouping == IntervalGrouping.ROUND_ROBIN:
         return [ivls[n::num_groups] for n in range(num_groups)]
     elif grouping == IntervalGrouping.CONSECUTIVE:
-        # This code will distribute groups blockwise, so each partition will have a
-        # small number of large groups
-        groups: List[List[VolumeInterval]] = [[] for _ in range(num_groups)]
-        intervals_per_group = int(math.floor(num_intervals / num_groups))
-        remainder = num_intervals - (intervals_per_group * num_groups)
-        cur_group = 0
-        cur_ivl: Optional[VolumeInterval] = None
-        cur_group_ivl_count = 0
-        target_ivl_count = intervals_per_group + (remainder > 0)
-
-        for i, ivl in enumerate(ivls):
-            if cur_ivl and ivl.contig == cur_ivl.contig:
-                cur_ivl = cur_ivl.add(ivl)
-            else:
-                if cur_ivl:
-                    groups[cur_group].append(cur_ivl)
-                cur_ivl = ivl
-
-            cur_group_ivl_count += 1
-
-            if cur_group_ivl_count >= target_ivl_count and cur_group < (num_groups - 1):
-                if cur_ivl:
-                    groups[cur_group].append(cur_ivl)
-                    cur_ivl = None
-                cur_group += 1
-                cur_group_ivl_count = 0
-                target_ivl_count = intervals_per_group + (cur_group < remainder)
-
-        if cur_ivl:
-            groups[cur_group].append(cur_ivl)
-
-        return groups
+        return group_consecutive(ivls, num_groups)
+    elif grouping == IntervalGrouping.LPT:
+        return group_lpt(ivls, num_groups)
 
     raise ValueError(f"Unsupported grouping: {grouping}")
+
+
+def group_consecutive(
+    ivls: Sequence[VolumeInterval], num_groups: int
+) -> Sequence[Sequence[VolumeInterval]]:
+    # This code will distribute groups blockwise, so each partition will have a
+    # small number of large groups
+    groups: List[List[VolumeInterval]] = [[] for _ in range(num_groups)]
+    num_intervals = len(ivls)
+    intervals_per_group = int(math.floor(num_intervals / num_groups))
+    remainder = num_intervals - (intervals_per_group * num_groups)
+    cur_group = 0
+    cur_ivl: Optional[VolumeInterval] = None
+    cur_group_ivl_count = 0
+    target_ivl_count = intervals_per_group + (remainder > 0)
+
+    for i, ivl in enumerate(ivls):
+        if cur_ivl and ivl.contig == cur_ivl.contig:
+            cur_ivl = cur_ivl.add(ivl)
+        else:
+            if cur_ivl:
+                groups[cur_group].append(cur_ivl)
+            cur_ivl = ivl
+
+        cur_group_ivl_count += 1
+
+        if cur_group_ivl_count >= target_ivl_count and cur_group < (num_groups - 1):
+            if cur_ivl:
+                groups[cur_group].append(cur_ivl)
+                cur_ivl = None
+            cur_group += 1
+            cur_group_ivl_count = 0
+            target_ivl_count = intervals_per_group + (cur_group < remainder)
+
+    if cur_ivl:
+        groups[cur_group].append(cur_ivl)
+
+    return groups
+
+
+def group_lpt(
+    ivls: Sequence[VolumeInterval], num_groups: int
+) -> Sequence[Sequence[VolumeInterval]]:
+    """This function implements the Longest Processing Time algorithm to get
+    a good division of labor for the multiprocessor scheduling problem.
+
+    Args:
+        ivls (list): A sequence of intervals.
+        num_groups (int): Number of groups to split internvals into.
+
+    Returns:
+        Sequence of sequences: Each group is a sequence of intervals that
+        should be processed together on a single worker or instance.
+    """
+    indexes = list(range(num_groups))
+    groups = [[] for _ in indexes]
+    sizes = [0] * num_groups
+
+    for ivl in sorted(ivls, key=lambda i: i.volume, reverse=True):
+        idx = min(indexes, key=sizes.__getitem__)
+        groups[idx].append(ivl)
+        sizes[idx] += ivl.volume
+
+    return groups
 
 
 def iter_index_intervals(
