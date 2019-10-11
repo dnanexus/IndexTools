@@ -32,6 +32,7 @@ pytest-cov = "^2.7"
 black = {version = "^19.3b0", allows-prereleases = true}
 cython = "^0.26.0"
 pytest-datadir-ng = "^1.1"
+coverage = "*"
 
 [tool.poetry.extras]
 jinja2 = ["jinja2"]
