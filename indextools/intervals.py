@@ -1,4 +1,4 @@
-from collections import Sized
+from collections.abc import Sized
 import copy
 from enum import IntFlag
 from typing import (
