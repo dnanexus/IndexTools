@@ -1,23 +1,29 @@
 repo = dnanexus/IndexTools
 package = indextools
+version = 0.1.3
 tests = tests
-# Use this option to show full stack trace for errors
-#pytestopts = --full-trace
-#pytestopts = -ra --tb=short
-#pytestopts = -vv --show-capture=all
+pytestopts = -s -vv --show-capture=all
 
-BUILD = poetry build && pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
-TEST = env PYTHONPATH="." coverage run -m pytest $(pytestops) $(tests) ; coverage report -m
+all: clean install test
 
-all:
-	$(BUILD)
-	$(TEST)
+build_cgranges:
+	cd cgranges \
+	&& python setup.py build_ext -i \
+	&& python setup.py bdist_wheel
 
-install:
-	$(BUILD)
+install_cgranges: build_cgranges
+	pip install --upgrade cgranges/dist/cgranges*.whl
+
+build: clean
+	poetry build
+
+install: build
+	pip install --upgrade dist/$(package)-$(version)-*.whl $(installargs)
 
 test:
-	$(TEST)
+	coverage run -m pytest $(pytestopts) $(tests)
+	coverage report -m
+	coverage xml
 
 lint:
 	flake8 $(package)
@@ -29,12 +35,14 @@ reformat:
 clean:
 	rm -Rf __pycache__
 	rm -Rf **/__pycache__/*
-	rm -Rf **/*.c
 	rm -Rf **/*.so
 	rm -Rf **/*.pyc
 	rm -Rf dist
 	rm -Rf build
 	rm -Rf $(package).egg-info
+	rm -Rf cgranges/build
+	rm -Rf cgranges/dist
+	rm -Rf cgranges/*.egg-info
 
 docker:
 	# build
@@ -45,17 +53,24 @@ docker:
 	docker login -u jdidion && \
 	docker push $(repo)
 
-release:
-	$(clean)
-	# build
-	$(BUILD)
-	$(TEST)
-	# bump version
-	poetry version $(dunamai from git --no-metadata --style semver)
-	# publish
-	poetry publish
-	# push new tag after successful build
+tag:
+	git tag $(version)
+
+push_tag:
 	git push origin --tags
+
+del_tag:
+	git tag -d $(version)
+
+set_version:
+	poetry version $(dunamai from git --no-metadata --style semver)
+
+pypi_release:
+	poetry publish
+
+release: clean tag
+	${MAKE} set_version install test pypi_release push_tag || (${MAKE} del_tag set_version && exit 1)
+
 	# create release in GitHub
 	curl -v -i -X POST \
 		-H "Content-Type:application/json" \

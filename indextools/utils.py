@@ -104,7 +104,8 @@ class References:
     @staticmethod
     def from_file(path: Path) -> "References":
         """
-        Loads references from a tsv file with two columns: ref_name, ref_size.
+        Loads references from a tsv file with at least two columns, with the first
+        two columnbs being ref_name, ref_size.
 
         Args:
             path: The path of the tsv file.
@@ -112,7 +113,7 @@ class References:
         Returns:
             A References object.
         """
-        return References(list(read_delimited(path, converters=[str, int])))
+        return References([(str(row[0]), int(row[1])) for row in read_delimited(path)])
 
     @staticmethod
     def from_bam(bam: Union[Path, pysam.AlignmentFile]) -> "References":

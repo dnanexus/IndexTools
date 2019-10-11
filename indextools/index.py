@@ -1,4 +1,5 @@
 from enum import Enum
+from loguru import logger
 import math
 import statistics
 from typing import Iterator, List, Optional, Sequence, Tuple, Union, Iterable
@@ -446,6 +447,22 @@ def index_to_intervals(
     Returns:
         A list of IndexIntervals.
     """
+    ref_indexes = index.ref_indexes
+    num_ref_indexes = len(ref_indexes)
+    num_contigs = len(references)
+    if num_ref_indexes < num_contigs:
+        raise ValueError(
+            "There are only {} reference indexes but {} contigs; the index file "
+            "does not appear to be compatible with the contigs file",
+            num_ref_indexes, num_contigs
+        )
+    if num_ref_indexes > num_contigs:
+        logger.warning(
+            "There are {} reference indexes but only {} contigs; the extra "
+            "reference indexes will be ignored", num_ref_indexes, num_contigs
+        )
+        ref_indexes = ref_indexes[:num_contigs]
+
     prev_interval = None
     prev_ref_num = None
     prev_ivl_num = None
@@ -453,7 +470,7 @@ def index_to_intervals(
     idxintervals: List[Optional[IndexInterval]] = [None] * max_intervals
     cur_interval = 0
 
-    for ref_num, ref in enumerate(index.ref_indexes):
+    for ref_num, ref in enumerate(ref_indexes):
         num_ivls = ref.num_intervals
         if num_ivls == 0:
             continue
