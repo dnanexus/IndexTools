@@ -1,20 +1,20 @@
 {
   "wgs": {
     "bam":  {
-      "$dnanexus_link": "file-FfG08b803YYfZZ3GGKbZYQbX"
+      "$dnanexus_link": "file-FfPzJy80jfjQXjvZGpGzgP6x"
     },
     "bai": {
-      "$dnanexus_link": "file-FfKy4X80GJxvGx711f4qpJf1"
+      "$dnanexus_link": "file-FfPzVqQ0jfjZ0xfvBjgqYgG4"
     },
     "beds": {
       "split_chr": {
-        "$dnanexus_link": "file-FfK0Vx00jfjy5QjVF61Zfy3P"
+        "$dnanexus_link": "file-FfQ83YQ0jfjQJQQqF1yXFgy2"
       },
       "split_n": {
         "$dnanexus_link": "file-Ff8fJP80jfjY2x479g8kpJVp"
       },
       "split_1Mb": {
-        "$dnanexus_link": "file-FfK0ZqQ0jfjYzqYk6jFvxBbZ"
+        "$dnanexus_link": "file-FfQ83X00jfjvP6z0PVQ8jvqP"
       }
     }
   }
