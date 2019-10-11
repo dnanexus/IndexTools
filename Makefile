@@ -1,10 +1,13 @@
 repo = dnanexus/IndexTools
 package = indextools
-version = 0.1.2
 tests = tests
+# Use this option to show full stack trace for errors
+#pytestopts = --full-trace
+#pytestopts = -ra --tb=short
+#pytestopts = -vv --show-capture=all
 
 BUILD = poetry build && pip install --upgrade dist/$(package)-$(version)-py3-none-any.whl $(installargs)
-TEST = pytest $(pytestops) $(tests)
+TEST = env PYTHONPATH="." coverage run -m pytest $(pytestops) $(tests) ; coverage report -m
 
 all:
 	$(BUILD)
