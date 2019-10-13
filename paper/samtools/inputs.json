@@ -1,0 +1,13 @@
+{
+  "bam": {
+    "$dnanexus_link": "file-FfV2X2j0x11Zy2X09zBXZzby"
+  },
+  "read_group": {
+    "___": {
+      "ID": "SRR9844315",
+      "LB": "SRR9844315",
+      "SM": "SRR9844315"
+    }
+  },
+  "docker_image": "dx://file-FfVbXp80jfjfYP3bJV77vPzb"
+}

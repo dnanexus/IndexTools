@@ -17,5 +17,27 @@
         "$dnanexus_link": "file-FfQ83X00jfjvP6z0PVQ8jvqP"
       }
     }
+  },
+  "exome": {
+
+  },
+  "rnaseq": {
+    "bam": {
+      "$dnanexus_link": "file-FfV2X2j0x11Zy2X09zBXZzby"
+    },
+    "bai": {
+      "$dnanexus_link": "file-FfV2X2j0x11Zp6B7Gp4KVFPx"
+    },
+    "beds": {
+      "split_chr": {
+        "$dnanexus_link": "file-FfQ83YQ0jfjQJQQqF1yXFgy2"
+      },
+      "split_n": {
+        "$dnanexus_link": "file-Ff8fJP80jfjY2x479g8kpJVp"
+      },
+      "split_50Mb": {
+        "$dnanexus_link": "file-FfV5kX00jfjpQ3YkKk9VJgvY"
+      }
+    }
   }
 }

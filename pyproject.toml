@@ -32,7 +32,6 @@ coverage = "^4.5.4"
 cython = "^0.29.13"
 pytest = "^4.0"
 pytest-datadir-ng = "^1.1"
-coverage = "*"
 
 [tool.poetry.extras]
 jinja2 = ["jinja2"]

@@ -50,10 +50,9 @@ To launch the benchmarking jobs on DNAnexus, ensure you are logged in and have s
 
 ```commandline
 $ python benchmark.py \
-  --data-files data_files.json \
-  --bed-files bed_files.json \
-  --template inputs.dx.template.json \
-  --workflow-id <workflow_id from output of dxWDL compile>
+  data_files.json \
+  inputs.dx.template.json \
+  <workflow_id from output of dxWDL compile>
 ```
 
 A progress bar is displayed, and at the end a summary.json file is written. This file contains all the details on the jobs that were launched.
@@ -68,4 +67,14 @@ When the jobs have finished running successfully, you can generate the report:
 
 ```commandline
 $ python benchmark.py report summary.json
+```
 
+## Benchmark data
+
+All datasets were mapped to GRCh38 (no alt analysis set) using BWA-MEM v0.7.15-r1140 (DNA) or STAR v2.6.1a (RNA).
+
+* Whole-genome Seqencing: down-sampled (30x) Genome-in-a-Bottle data from HG002
+* Whole-exome Sequencing: Genome-in-a-Bottle data from HG002
+* Targeted DNA-seq: SRR6762741 - Illumina TruSight 170 panel sequencing of WM1366 cell line
+* Bulk whole-transcriptome RNA-seq: SRA9844315 - paired-end sequencing on HiSeq4000
+* Targeted RNA-seq: SRR5253223 - Illumina TruSight RNA Pan-Cancer panel sequencing of Esophageal adenocarcinomas

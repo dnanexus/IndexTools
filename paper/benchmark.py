@@ -22,7 +22,8 @@ def launch(
     input_stage_id: str = "stage-common",
     output_folder: str = "/benchmark_results",
     summary_file: Path = Path.cwd() / "summary.json",
-    batch_id: Optional[str] = None
+    batch_id: Optional[str] = None,
+    data_name: Optional[str] = None
 ):
     """
     Launch benchmark analyses.
@@ -36,9 +37,15 @@ def launch(
         output_folder: Top-level folder in which to output results.
         summary_file: Output summary file to write.
         batch_id: ID to tag on this batch of analyses.
+        data_name: Name of a data source; only jobs for this source will be launched
     """
     with open(data_files, "rt") as inp:
         data = json.load(inp)
+
+    if data_name:
+        data = {
+            data_name: data[data_name]
+        }
 
     with open(template, "rt") as inp:
         tmpl = json.load(inp)

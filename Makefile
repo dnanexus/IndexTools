@@ -43,6 +43,8 @@ clean:
 	rm -Rf **/__pycache__/*
 	rm -Rf **/*.so
 	rm -Rf **/*.pyc
+	rm -Rf .coverage
+	rm -Rf coverage.xml
 	rm -Rf dist
 	rm -Rf build
 	rm -Rf $(package).egg-info
