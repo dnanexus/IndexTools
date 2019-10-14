@@ -1,5 +1,5 @@
 from indextools.console import partition
-import filecmp
+from . import read_files
 import pytest
 
 
@@ -47,4 +47,5 @@ def test_partition_index_w_contigs(
         outfile=partition_bed,
     )
 
-    assert filecmp.cmp(partition_bed, expected_partition_bed)
+    lines1, lines2 = read_files(partition_bed, expected_partition_bed)
+    assert lines1 == lines2

@@ -80,7 +80,7 @@ pypi_release:
 	poetry publish
 
 release: clean tag
-	${MAKE} install test pypi_release push_tag || (${MAKE} del_tag set_version && exit 1)
+	${MAKE} install test pypi_release push_tag || (${MAKE} del_tag && exit 1)
 
 	# create release in GitHub
 	curl -v -i -X POST \

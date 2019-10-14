@@ -46,3 +46,11 @@ def tempdir(
     finally:
         if cleanup:
             shutil.rmtree(temp)
+
+
+def read_files(path1: Path, path2: Path):
+    with open(path1, "rt") as inp:
+        lines1 = inp.readlines()
+    with open(path2, "rt") as inp:
+        lines2 = inp.readlines()
+    return lines1, lines2
