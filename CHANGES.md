@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+* Bugfixes
+
 ## 0.1.3
 
 * Add support for using .faidx files for chromosome sizes

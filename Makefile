@@ -1,6 +1,6 @@
 repo = dnanexus/IndexTools
 package = indextools
-version = 0.1.3
+version = 0.1.4
 tests = tests
 pytestopts = -s -vv --show-capture=all
 
