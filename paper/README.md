@@ -71,10 +71,29 @@ $ python benchmark.py report summary.json
 
 ## Benchmark data
 
-All datasets were mapped to GRCh38 (no alt analysis set) using BWA-MEM v0.7.15-r1140 (DNA) or STAR v2.6.1a (RNA).
+All datasets were mapped to GRCh38 (UCSC version, no alt analysis set) using BWA-MEM v0.7.15-r1140 (DNA) or STAR v2.6.1a (RNA).
 
-* Whole-genome Seqencing: down-sampled (30x) Genome-in-a-Bottle data from HG002
-* Whole-exome Sequencing: Genome-in-a-Bottle data from HG002
-* Targeted DNA-seq: SRR6762741 - Illumina TruSight 170 panel sequencing of WM1366 cell line
-* Bulk whole-transcriptome RNA-seq: SRA9844315 - paired-end sequencing on HiSeq4000
-* Targeted RNA-seq: SRR5253223 - Illumina TruSight RNA Pan-Cancer panel sequencing of Esophageal adenocarcinomas
+### Whole-genome Seqencing:
+
+Down-sampled (30x) Genome-in-a-Bottle data from HG002.
+
+* BAM file was missing RG tags - added these using `samtools addreplacerg`.
+
+### Whole-exome Sequencing
+
+Genome-in-a-Bottle data from HG002.
+
+* BAM file was mapped to Ensemble reference - used `samtools fastq` to convert BAM to FASTQ, then remapped to the UCSC reference.
+* Agilent SureSelect v05 baits were remapped to GRCh38 using BCBio protocol: https://github.com/bcbio/bcbio_validation_workflows/blob/master/giab-exome/input/get_data.sh
+
+### Targeted DNA-seq
+
+SRR6762741 - Illumina TruSight 170 panel sequencing of WM1366 cell line.
+
+### Bulk whole-transcriptome RNA-seq
+
+SRA9844315 - paired-end sequencing on HiSeq4000.
+
+### Targeted RNA-seq
+
+SRR5253223 - Illumina TruSight RNA Pan-Cancer panel sequencing of Esophageal adenocarcinomas.

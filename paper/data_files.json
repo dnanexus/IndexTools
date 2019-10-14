@@ -21,12 +21,15 @@
   "exome": {
 
   },
+  "targeted_dna": {
+
+  },
   "rnaseq": {
     "bam": {
-      "$dnanexus_link": "file-FfV2X2j0x11Zy2X09zBXZzby"
+      "$dnanexus_link": "file-FfVqB3Q0Gbz008x215yFQ38z"
     },
     "bai": {
-      "$dnanexus_link": "file-FfV2X2j0x11Zp6B7Gp4KVFPx"
+      "$dnanexus_link": "file-FfVqBf00Gbz0jfP7Gv2GX8gZ"
     },
     "beds": {
       "split_chr": {
@@ -39,5 +42,8 @@
         "$dnanexus_link": "file-FfV5kX00jfjpQ3YkKk9VJgvY"
       }
     }
+  },
+  "targeted_rna": {
+
   }
 }

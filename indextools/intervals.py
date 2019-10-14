@@ -134,10 +134,10 @@ class GenomeInterval(Sized):
         Returns:
             A tuple consisting of 1) the comparison between this contig and
             other's contig; 2) the number of base pairs distance between
-            this interval and `other`; and 3) the fraction of this interval
-            overlapped by `other`, and 4) the fraction of `other` that overlaps
-            this interval. Negative/positve numbers represents that one interval
-            is to the left/right of the other.
+            this interval and `other`, where a zero value means they are overlapping;
+            3) the fraction of this interval overlapped by `other`, and 4) the
+            fraction of `other` that overlaps this interval. Negative/positve numbers
+            that one interval is to the left/right of the other.
 
         Examples:
             # End-inclusivity: a Interval is not end-inclusive, so an
@@ -197,7 +197,7 @@ class GenomeInterval(Sized):
             A new GenomeInterval.
         """
         cmp = self.compare(other)
-        if cmp[0] != 0 or cmp[1] > 1:
+        if cmp[0] != 0 or abs(cmp[1]) > 1:
             raise ValueError(
                 f"Cannot merge non-overlapping/adjacent intervals {self}, {other}"
             )
@@ -227,7 +227,30 @@ class GenomeInterval(Sized):
             right = GenomeInterval(self.contig, other.end, self.end)
         return left, right
 
-    def slice(self: IVL, start: Optional[int] = None, end: Optional[int] = None) -> IVL:
+    def slice(
+        self: IVL,
+        other: Optional["GenomeInterval"] = None,
+        start: Optional[int] = None,
+        end: Optional[int] = None
+    ) -> IVL:
+        """Creates a new interval with the bounds of the current interval restricted
+        by those of `other`. If `start` or `end` are specified, they take precedence
+        over `other`.
+
+        Args:
+            other:
+            start:
+            end:
+
+        Returns:
+            A new interval.
+        """
+        if other:
+            self.contig_equal(other)
+            if start is None:
+                start = other.start
+            if end is None:
+                end = other.end
         if start is None or start < self.start:
             start = self.start
         if end is None or end > self.end:
@@ -235,56 +258,56 @@ class GenomeInterval(Sized):
         return GenomeInterval(self.contig, start, end)
 
     @classmethod
-    def intersect(cls: Type[IVL], ivl: IVL, *other: IVL) -> Iterator[IVL]:
+    def intersect(cls: Type[IVL], ivl: IVL, other: Iterable[IVL]) -> Iterator[IVL]:
         """
         Intersect `ivl` with `other` intervals.
 
         Args:
             ivl:
-            *other:
+            other:
 
         Yields:
             Intervals of the same type as `ivl`.
         """
-        if len(other) == 0:
+        other_list = list(sorted(other))
+
+        if len(other_list) == 0:
             raise ValueError("Must specify at least one other interval to intersect")
 
-        other = list(sorted(other))
+        ivl.contig_equal(other_list[0])
 
-        ivl.check_contig(other[0])
-
-        if len(other) == 1:
-            other_list = other
+        if len(other_list) == 1:
+            other_merged = other_list
         else:
             # First merge any of `other` intervals that are overlapping.
-            other_list = []
-            o1 = other[0]
-            for o2 in other[1:]:
+            other_merged = []
+            o1 = other_list[0]
+            for o2 in other_list[1:]:
                 cmp = o1.compare(o2)
                 if cmp[0] != 0:
                     raise ValueError(
                         f"Cannot intersect intervals on different contigs; "
                         f"{o1.contig} != {o2.contig}"
                     )
-                if cmp[1] <= 1:
+                if abs(cmp[2]) > 0:
                     o1 = o1.add(o2)
                 else:
-                    other_list.append(o1)
+                    other_merged.append(o1)
                     o1 = o2
-            other_list.append(o1)
+            other_merged.append(o1)
 
-        for other_ivl in other_list:
+        for other_ivl in other_merged:
             if other_ivl in ivl:
                 yield ivl.slice(other_ivl)
 
     @classmethod
-    def divide(cls: Type[IVL], ivl: IVL, *other: IVL) -> Iterator[IVL]:
+    def divide(cls: Type[IVL], ivl: IVL, other: Iterable[IVL]) -> Iterator[IVL]:
         """
         Generates new intervals by subtracting `other` from `ivl`.
 
         Args:
             ivl:
-            *other:
+            other:
 
         Yields:
             Intervals of the same type as `ivl`.

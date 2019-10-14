@@ -159,6 +159,8 @@ class Regions:
         if targets:
             intervals.add_all(iter_bed_intervals(targets))
 
+        intervals.close()
+
         return intervals
 
     def _create_interval(self, region: Region) -> GenomeInterval:
@@ -185,7 +187,7 @@ class Regions:
             intersection = []
 
             if self._include_intervals:
-                incl_overlapping = self._include_intervals.find(ivl)
+                incl_overlapping = list(self._include_intervals.find(ivl))
                 if incl_overlapping:
                     intersection = GenomeInterval.intersect(ivl, incl_overlapping)
             else:
@@ -193,7 +195,7 @@ class Regions:
 
             if self._exclude_intervals:
                 for subivl in intersection:
-                    excl_overlapping = self._exclude_intervals.find(subivl)
+                    excl_overlapping = list(self._exclude_intervals.find(subivl))
                     if excl_overlapping:
                         yield from GenomeInterval.divide(subivl, excl_overlapping)
                     else:

@@ -65,11 +65,13 @@ class VolumeInterval(GenomeInterval):
 
     def add(self: "VolumeInterval", other: "VolumeInterval") -> "VolumeInterval":
         cmp = self.compare(other)
-        if cmp[0] != 0:
-            raise ValueError(f"Cannot merge non-overlapping intervals {self}, {other}")
-        if cmp[3] == 1:
+        if cmp[0] != 0 or abs(cmp[1]) > 1:
+            raise ValueError(
+                f"Cannot merge non-overlapping/adjacent intervals {self}, {other}"
+            )
+        if abs(cmp[3]) == 1:
             return self
-        elif cmp[2] == 1:
+        elif abs(cmp[2]) == 1:
             return other
         else:
             if other.start < self.start:
@@ -102,8 +104,17 @@ class VolumeInterval(GenomeInterval):
         return left, right
 
     def slice(
-        self: "VolumeInterval", start: Optional[int] = None, end: Optional[int] = None
+        self: "VolumeInterval",
+        other: Optional[GenomeInterval] = None,
+        start: Optional[int] = None,
+        end: Optional[int] = None
     ) -> "VolumeInterval":
+        if other:
+            self.contig_equal(other)
+            if start is None:
+                start = other.start
+            if end is None:
+                end = other.end
         if start is None or start < self.start:
             start = self.start
         if end is None or end > self.end:
@@ -334,7 +345,7 @@ def group_consecutive(
     target_ivl_count = intervals_per_group + (remainder > 0)
 
     for i, ivl in enumerate(ivls):
-        if cur_ivl and ivl.contig == cur_ivl.contig:
+        if cur_ivl and ivl in cur_ivl:
             cur_ivl = cur_ivl.add(ivl)
         else:
             if cur_ivl:
@@ -372,12 +383,15 @@ def group_lpt(
         should be processed together on a single worker or instance.
     """
     indexes = list(range(num_groups))
-    groups = [[] for _ in indexes]
+    groups: List[List[VolumeInterval]] = [[] for _ in indexes]
     sizes = [0] * num_groups
 
     for ivl in sorted(ivls, key=lambda i: i.volume, reverse=True):
         idx = min(indexes, key=sizes.__getitem__)
-        groups[idx].append(ivl)
+        if groups[idx] and ivl in groups[idx][-1]:
+            groups[idx][-1].add(ivl)
+        else:
+            groups[idx].append(ivl)
         sizes[idx] += ivl.volume
 
     return groups

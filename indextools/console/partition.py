@@ -37,7 +37,8 @@ def partition(
         grouping: How to group intervals: 'NONE' - do not group intervals;
             'CONSECUTIVE' - group consecutive intervals (including intervals
             on consecutive contigs); 'ROUND_ROBIN' - assign intervals to
-            partitions in round-robin fashion.
+            partitions in round-robin fashion; 'LPT' - use the LPT algorithm to
+            group intervals.
         outfile: The output partition BED file. Defaults to '{file}_partitions.bed.gz'.
         annotation: Names of annotations to add in columns 7+ of the output BED file.
             Currently accepted values are: 'child_lengths' (comma-delimited list of
@@ -55,7 +56,7 @@ def partition(
     index_file = resolve_index_file(primary, IndexType.BAI, index)
 
     if outfile is None:
-        prefix = split_path(primary)[1]
+        prefix = split_path(primary or index_file)[1]
         outfile_name = f"{prefix}.bed"
         if bgzip_outfile:
             outfile_name += ".gz"
@@ -70,6 +71,9 @@ def partition(
         references = References.from_file(contig_sizes)
     else:
         references = References.from_bam(primary)
+
+    if regions:
+        regions.init(references)
 
     partition_intervals = group_intervals(
         cast(CoordinateIndex, parse_index(index_file, IndexType.BAI)),
