@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+* Fix bug introduced in 0.1.4 where adjacent intervals weren't merged
+
 ## 0.1.4
 
 * Bugfixes

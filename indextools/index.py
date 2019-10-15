@@ -64,10 +64,11 @@ class VolumeInterval(GenomeInterval):
         return int(math.ceil(((end - start) / len(self)) * self.volume))
 
     def add(self: "VolumeInterval", other: "VolumeInterval") -> "VolumeInterval":
+        self.assert_contig_equal(other)
         cmp = self.compare(other)
-        if cmp[0] != 0 or abs(cmp[1]) > 1:
+        if abs(cmp[1]) > 1:
             raise ValueError(
-                f"Cannot merge non-overlapping/adjacent intervals {self}, {other}"
+                f"Interevals are not overlapping or adjacent: {self}, {other}"
             )
         if abs(cmp[3]) == 1:
             return self
@@ -89,19 +90,24 @@ class VolumeInterval(GenomeInterval):
     def subtract(
         self: "VolumeInterval", other: "VolumeInterval" = None
     ) -> Tuple[Optional["VolumeInterval"], Optional["VolumeInterval"]]:
-        self.contig_equal(other)
-        if other not in self:
-            raise ValueError(f"Intervals do not overlap: {self}, {other}")
-        left = right = None
-        if other.start > self.start:
-            left = VolumeInterval(
-                self.contig, self.start, other.start, self.get_volume(end=other.start)
-            )
-        if other.end < self.end:
-            right = VolumeInterval(
-                self.contig, other.end, self.end, self.get_volume(start=other.end)
-            )
-        return left, right
+        self.assert_contig_equal(other)
+        cmp = self.compare(other)
+        if cmp[1] < 0:
+            return self, None
+        elif cmp[1] > 0:
+            return None, self
+        else:
+            left = right = None
+            if other.start > self.start:
+                left = VolumeInterval(
+                    self.contig, self.start, other.start,
+                    self.get_volume(end=other.start)
+                )
+            if other.end < self.end:
+                right = VolumeInterval(
+                    self.contig, other.end, self.end, self.get_volume(start=other.end)
+                )
+            return left, right
 
     def slice(
         self: "VolumeInterval",
@@ -110,7 +116,7 @@ class VolumeInterval(GenomeInterval):
         end: Optional[int] = None
     ) -> "VolumeInterval":
         if other:
-            self.contig_equal(other)
+            self.assert_contig_equal(other)
             if start is None:
                 start = other.start
             if end is None:
@@ -345,11 +351,14 @@ def group_consecutive(
     target_ivl_count = intervals_per_group + (remainder > 0)
 
     for i, ivl in enumerate(ivls):
-        if cur_ivl and ivl in cur_ivl:
-            cur_ivl = cur_ivl.add(ivl)
-        else:
-            if cur_ivl:
+        if cur_ivl:
+            if cur_ivl.overlapping_or_adjacent(ivl):
+                cur_ivl = cur_ivl.add(ivl)
+            else:
                 groups[cur_group].append(cur_ivl)
+                cur_ivl = None
+
+        if cur_ivl is None:
             cur_ivl = ivl
 
         cur_group_ivl_count += 1
@@ -388,7 +397,7 @@ def group_lpt(
 
     for ivl in sorted(ivls, key=lambda i: i.volume, reverse=True):
         idx = min(indexes, key=sizes.__getitem__)
-        if groups[idx] and ivl in groups[idx][-1]:
+        if groups[idx] and groups[idx][-1].overlapping_or_adjacent(ivl):
             groups[idx][-1].add(ivl)
         else:
             groups[idx].append(ivl)

@@ -100,7 +100,7 @@ class GenomeInterval(Sized):
         value indicates that `other` is to the right, and positive value
         indicates that it is to the left.
         """
-        self.contig_equal(other)
+        self.assert_contig_equal(other)
         return self.compare(other)[1]
 
     def __lt__(self: IVL, other: IVL) -> bool:
@@ -179,27 +179,32 @@ class GenomeInterval(Sized):
             min(1, (-1 * overlap) / other_len),
         )
 
-    def contig_equal(self: IVL, other: IVL) -> None:
+    def assert_contig_equal(self: IVL, other: IVL) -> None:
         if self.contig != other.contig:
             raise ValueError(
                 f"Intervals are on two different contigs: "
                 f"{self.contig} != {other.contig}"
             )
 
+    def overlapping_or_adjacent(self: IVL, other: IVL) -> bool:
+        cmp = self.compare(other)
+        return cmp[0] == 0 and abs(cmp[1]) <= 1
+
     def add(self: IVL, other: IVL) -> IVL:
-        """
-        Add another interval to this one.
+        """Add another interval to this one.
 
         Args:
             other: The interval to add.
 
         Returns:
             A new GenomeInterval.
+
+        Raises:
+            ValueError if `other` is not overlapping or adjacent to this interval.
         """
-        cmp = self.compare(other)
-        if cmp[0] != 0 or abs(cmp[1]) > 1:
+        if not self.overlapping_or_adjacent(other):
             raise ValueError(
-                f"Cannot merge non-overlapping/adjacent intervals {self}, {other}"
+                f"Interevals are not overlapping or adjacent: {self}, {other}"
             )
         return GenomeInterval(
             self.contig,
@@ -217,15 +222,32 @@ class GenomeInterval(Sized):
         return annotations
 
     def subtract(self: IVL, other: IVL = None) -> Tuple[Optional[IVL], Optional[IVL]]:
-        self.contig_equal(other)
-        if other not in self:
-            raise ValueError(f"Intervals do not overlap: {self}, {other}")
-        left = right = None
-        if other.start > self.start:
-            left = GenomeInterval(self.contig, self.start, other.start)
-        if other.end < self.end:
-            right = GenomeInterval(self.contig, other.end, self.end)
-        return left, right
+        """Subtract an interval from this one.
+
+        Args:
+            other: The interval to subtract.
+
+        Returns:
+            A tuple of new intervals. If the first interval is None, `other`
+            overlaps the left side of this interval; if the second interval
+            is None, `other` overlaps the right side of this interval.
+
+        Raises:
+            ValueError if `other` is not on the same contig as this interval.
+        """
+        self.assert_contig_equal(other)
+        cmp = self.compare(other)
+        if cmp[1] < 0:
+            return self, None
+        elif cmp[1] > 0:
+            return None, self
+        else:
+            left = right = None
+            if other.start > self.start:
+                left = GenomeInterval(self.contig, self.start, other.start)
+            if other.end < self.end:
+                right = GenomeInterval(self.contig, other.end, self.end)
+            return left, right
 
     def slice(
         self: IVL,
@@ -246,7 +268,7 @@ class GenomeInterval(Sized):
             A new interval.
         """
         if other:
-            self.contig_equal(other)
+            self.assert_contig_equal(other)
             if start is None:
                 start = other.start
             if end is None:
@@ -274,7 +296,7 @@ class GenomeInterval(Sized):
         if len(other_list) == 0:
             raise ValueError("Must specify at least one other interval to intersect")
 
-        ivl.contig_equal(other_list[0])
+        ivl.assert_contig_equal(other_list[0])
 
         if len(other_list) == 1:
             other_merged = other_list

@@ -193,7 +193,7 @@ task haplotype_caller_split {
   genome_reference=reference_genome/~{reference_genome_id}.fa
 
   # Split intervals file into one file per partition
-  cat ~{intervals_bed} | awk '{print $1":"$2+1"-"$3 > "regions/"$~{split_column}".regions.txt"}'
+  cat ~{intervals_bed} | awk '{print $1":"$2+1"-"$3 > "regions/"$~{split_column}".intervals"}'
   # Create files with 1) all the partition names and 2) result file names
   cat ~{intervals_bed} | cut -f ~{split_column} | sort | uniq | tee partitions.txt | \
     awk '{print "results/"$1".vcf.gz"}' > results_files.txt
@@ -204,7 +204,7 @@ task haplotype_caller_split {
     java -Xmx~{xmx_per_interval}g -jar /gatk/gatk.jar HaplotypeCaller \
       -R $genome_reference \
       -I ~{bam} \
-      -L regions/'{}.regions.txt' \
+      -L regions/'{}.intervals' \
       -O results/'{}.vcf.gz' \
       ~{if defined(padding) then "--interval_padding " + padding else ""} \
       --native-pair-hmm-threads ~{default_cpu_per_interval}
