@@ -10,6 +10,9 @@ workflow gatk_benchmark {
     String reference_genome_id
     File reference_fasta_targz
     File? intervals_bed
+    File? targets_bed
+    Int? split_column
+    Int? padding
     String output_prefix
     String? indextools_docker_image
     String? gatk_docker_image
@@ -33,30 +36,20 @@ workflow gatk_benchmark {
   File actual_bai = select_first([bai, index_bam.bai])
 
   if (!defined(intervals_bed)) {
-    if (defined(contig_sizes)) {
-      call indextools_partition as partition_bai {
-        input:
-          bai = actual_bai,
-          contig_sizes = contig_sizes,
-          partitions = 36,
-          output_prefix = output_prefix,
-          docker_image = default_indextools_docker_image
-      }
-    }
-    if (!defined(contig_sizes)) {
-      call indextools_partition as partition_bam {
-        input:
-          bai = actual_bai,
-          bam = bam,
-          partitions = 36,
-          output_prefix = output_prefix,
-          docker_image = default_indextools_docker_image
-      }
+    call indextools_partition as partition {
+      input:
+        bai = actual_bai,
+        bam = bam,
+        contig_sizes = contig_sizes,
+        partitions = 36,
+        targets_bed = targets_bed,
+        output_prefix = output_prefix,
+        docker_image = default_indextools_docker_image
     }
   }
 
   File actual_intervals_bed = select_first([
-    intervals_bed, partition_bai.bed, partition_bam.bed
+    intervals_bed, partition.bed
   ])
 
   call gatk.gatk {
@@ -66,6 +59,8 @@ workflow gatk_benchmark {
       reference_genome_id = reference_genome_id,
       reference_fasta_targz = reference_fasta_targz,
       intervals_bed = actual_intervals_bed,
+      split_column = split_column,
+      padding = padding,
       output_prefix = output_prefix,
       docker_image = default_gatk_docker_image
   }
@@ -102,6 +97,7 @@ task indextools_partition {
     File? bam
     File? contig_sizes
     Int partitions
+    File? targets_bed
     String? output_prefix
     String docker_image
   }
@@ -110,8 +106,8 @@ task indextools_partition {
 
   command <<<
   indextools partition -I ~{bai} \
-    ~{if defined(bam) then "-i " + bam else ""} \
-    ~{if defined(contig_sizes) then "-z " + contig_sizes else ""} \
+    ~{if defined(contig_sizes) then "-z " + contig_sizes else "-i " + bam} \
+    ~{if defined(targets_bed) then "-t " + targets_bed else ""} \
     -n ~{partitions} \
     -o ~{output_prefix}.bed
   >>>

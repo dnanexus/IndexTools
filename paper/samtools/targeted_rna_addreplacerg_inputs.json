@@ -1,0 +1,13 @@
+{
+  "bam": {
+    "$dnanexus_link": "file-FfVgqz00P6FQGkX12BXgZyFf"
+  },
+  "read_group": {
+    "___": {
+      "ID": "SRR5253223",
+      "LB": "SRR5253223",
+      "SM": "SRR5253223"
+    }
+  },
+  "docker_image": "dx://file-FfVbXp80jfjfYP3bJV77vPzb"
+}

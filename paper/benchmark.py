@@ -1,12 +1,16 @@
 import copy
+from datetime import datetime
 import json
 from pathlib import Path
+import re
 from typing import Optional
 import uuid
 
 import autoclick as ac
 import dxpy
+from dxpy.utils.job_log_client import DXJobLogStreamClient
 import tqdm
+from xphyle import STDOUT, open_
 
 
 @ac.group("benchmark")
@@ -64,11 +68,23 @@ def launch(
 
     for data_name, data_val in data.items():
         beds = data_val.pop("beds")
+        targets = data_val.pop("targets", None)
+        padding = data_val.pop("padding", None)
+
         for bed_name, bed_val in beds.items():
             prefix = f"{data_name}_{bed_name}"
             analysis = copy.copy(tmpl)
             analysis.update(data_val)  # set bam and bai
-            analysis["intervals_bed"] = bed_val
+            if targets and isinstance(bed_val, dict):
+                if "bed" in bed_val:
+                    analysis["intervals_bed"] = bed_val["bed"]
+                else:
+                    analysis["intervals_bed"] = targets
+                analysis["split_column"] = bed_val["split_column"]
+                if padding:
+                    analysis["padding"] = padding
+            else:
+                analysis["intervals_bed"] = bed_val
             analysis["output_prefix"] = prefix
             summary["analyses"].append(analysis)
 
@@ -78,6 +94,11 @@ def launch(
         prefix = f"{data_name}_indextools"
         analysis = copy.copy(tmpl)
         analysis.update(data_val)  # set bam and bai
+        if targets:
+            analysis["targets_bed"] = targets
+            analysis["split_column"] = 4
+            if padding:
+                analysis["padding"] = padding
         analysis["output_prefix"] = prefix
         summary["analyses"].append(analysis)
 
@@ -87,6 +108,7 @@ def launch(
         )
         prefix = analysis["output_prefix"]
         folder = f"{output_folder}/{prefix}"
+        #print(f"Launching workflow with inputs {workflow_inputs}")
         dxanalysis = workflow.run(
             workflow_inputs,
             folder=folder,
@@ -101,7 +123,17 @@ def launch(
 
 
 @main.command()
-def report(launch_summary: Path, output: Path):
+def report(launch_summary: Optional[Path] = None, output: Optional[Path] = None):
+    if launch_summary:
+        results = summarize_from_launch(launch_summary)
+    else:
+        results = summarize_from_query()
+
+    with open_(output or STDOUT, "wt") as out:
+        json.dump(results, out)
+
+
+def summarize_from_launch(launch_summary: Path):
     with open(launch_summary, "rt") as inp:
         summary = json.load(inp)
 
@@ -115,8 +147,47 @@ def report(launch_summary: Path, output: Path):
 
         # Find the GATK job and extract the start and end times from the log
 
-    with open(output, "wt") as out:
-        json.dump(results, out)
+
+MSG_RE = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{6}).*")
+
+
+class DateCollector:
+    def __init__(self):
+        self._start = None
+        self._end = None
+
+    def __call__(self, msg):
+        if msg["source"] == "APP" and msg["level"] == "STDOUT":
+            m = MSG_RE.match(msg["msg"])
+            if m:
+                d = datetime.strptime(m.group(1), "%Y-%m-%dT%H:%M:%S,%f")
+            if self._start is None:
+                self._start = d
+            elif self._end is None:
+                self._end = d
+            else:
+                raise RuntimeError("Unexpected date string")
+
+    def duration_seconds(self) -> int:
+        return abs(self._start - self._end).seconds
+
+
+def summarize_from_query() -> dict:
+    summary = {}
+    jobs = list(dxpy.find_jobs(
+        name="^gatk_hc*",
+        name_mode="regexp",
+        state="done",
+        project=dxpy.PROJECT_CONTEXT_ID,
+        describe=True
+    ))
+    for job in tqdm.tqdm(jobs):
+        job = job["describe"]
+        date_collector = DateCollector()
+        client = DXJobLogStreamClient(job["id"], msg_callback=date_collector)
+        client.connect()
+        summary[job["runInput"]["output_prefix"]] = date_collector.duration_seconds()
+    return summary
 
 
 if __name__ == "__main__":

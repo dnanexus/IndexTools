@@ -6,6 +6,6 @@
     "$dnanexus_link": "file-Ff77Z4j0jfjy967QPqP0003b"
   },
   "reference_genome_id": "GRCh38.no_alt_analysis_set",
-  "indextools_docker_image": "dx://file-FfQ8f580jfjkj1Gk9kzbxq6P",
+  "indextools_docker_image": "dx://file-FfXFX400jfjyP43BJkFggfBg",
   "gatk_docker_image": "dx://file-FfKF1k00jfjxbyXqB7zzgBz0"
 }
