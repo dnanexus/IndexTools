@@ -211,8 +211,8 @@ task haplotype_caller_split {
 
   date -Ins
 
-  bcftools concat -f results_files.txt | \
-    bcftools sort -Oz -o ~{output_prefix}.gatk.vcf.gz
+  bcftools concat -a -Ov -f results_files.txt | \
+    bcftools sort -Oz -o ~{output_prefix}.gatk.vcf.gz -
   tabix -p vcf ~{output_prefix}.gatk.vcf.gz
   >>>
 
