@@ -1,0 +1,14 @@
+{
+  "Whole_Genome": {
+    "indextools": 15769,
+    "windows": 20629,
+    "Ns": 15793,
+    "chr": 15798
+  },
+  "Whole_RNA": {
+    "indextools": 239,
+    "windows": 2087,
+    "Ns": 271,
+    "chr": 274
+  }
+}

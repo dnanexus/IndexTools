@@ -6,7 +6,7 @@ from typing import Iterator, List, Optional, Sequence, Tuple, Union, Iterable
 
 from indextools.intervals import GenomeInterval, IVL
 from indextools.regions import Regions
-from indextools.utils import References
+from indextools.utils import References, safe_divide_ceil
 
 from ngsindex import CoordinateIndex, Offset
 
@@ -51,8 +51,8 @@ class VolumeInterval(GenomeInterval):
         """Gets the volume within the specified range.
 
         Args:
-            start:
-            end:
+            start: region start
+            end: region end
 
         Returns:
             The volume in the specified range, computed as ((end-start)/length)*volume.
@@ -61,7 +61,7 @@ class VolumeInterval(GenomeInterval):
             start = self.start
         if not end or end > self.end:
             end = self.end
-        return int(math.ceil(((end - start) / len(self)) * self.volume))
+        return safe_divide_ceil((end - start) * self.volume, len(self))
 
     def add(self: "VolumeInterval", other: "VolumeInterval") -> "VolumeInterval":
         self.assert_contig_equal(other)
@@ -142,7 +142,7 @@ class VolumeInterval(GenomeInterval):
             target_volume: Target volume of the pieces.
         """
         if target_volume:
-            num_pieces = int(math.ceil(self.volume / target_volume))
+            num_pieces = safe_divide_ceil(self.volume, target_volume)
 
         # Yield one interval per piece
         total_length = len(self)
@@ -150,9 +150,7 @@ class VolumeInterval(GenomeInterval):
 
         for ivl_start in range(self.start, self.end, piece_length):
             ivl_end = min(self.end, ivl_start + piece_length)
-            ivl_vol = int(
-                math.ceil(((ivl_end - ivl_start) / total_length) * self.volume)
-            )
+            ivl_vol = safe_divide_ceil((ivl_end - ivl_start) * self.volume, total_length)
             yield VolumeInterval(self.contig, ivl_start, ivl_end, ivl_vol)
 
     @staticmethod
@@ -278,6 +276,9 @@ class IndexInterval(VolumeInterval):
 # TODO: does the last partition need special handling (i.e. due to unmapped reads)?
 # TODO: add annotations to the intervals with information about contained index
 #  intervals.
+# TODO: indexsplit implements a similar method - review the code to check our math
+#  and see if there are any interesting ideas that can be repurposed:
+#  https://github.com/brentp/goleft/blob/master/indexsplit/indexsplit.go
 
 
 def group_intervals(

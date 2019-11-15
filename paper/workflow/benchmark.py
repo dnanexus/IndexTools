@@ -3,7 +3,7 @@ from datetime import datetime
 import json
 from pathlib import Path
 import re
-from typing import Optional
+from typing import Optional, Union
 import uuid
 
 import autoclick as ac
@@ -27,7 +27,9 @@ def launch(
     output_folder: str = "/benchmark_results",
     summary_file: Path = Path.cwd() / "summary.json",
     batch_id: Optional[str] = None,
-    data_name: Optional[str] = None
+    only_data: Optional[str] = None,
+    only_bed: Optional[str] = None,
+    indextools_only: bool = False
 ):
     """
     Launch benchmark analyses.
@@ -41,14 +43,16 @@ def launch(
         output_folder: Top-level folder in which to output results.
         summary_file: Output summary file to write.
         batch_id: ID to tag on this batch of analyses.
-        data_name: Name of a data source; only jobs for this source will be launched
+        only_data: Name of a data source; only jobs for this source will be launched
+        only_bed: Name of a bed file; only jobs for this bed file will be launched
+        indextools_only: Only run jobs for indextools
     """
     with open(data_files, "rt") as inp:
         data = json.load(inp)
 
-    if data_name:
+    if only_data:
         data = {
-            data_name: data[data_name]
+            only_data: data[only_data]
         }
 
     with open(template, "rt") as inp:
@@ -71,36 +75,43 @@ def launch(
         targets = data_val.pop("targets", None)
         padding = data_val.pop("padding", None)
 
-        for bed_name, bed_val in beds.items():
-            prefix = f"{data_name}_{bed_name}"
+        if not indextools_only:
+            if only_bed:
+                beds = {
+                    only_bed: beds[only_bed]
+                }
+
+            for bed_name, bed_val in beds.items():
+                prefix = f"{data_name}_{bed_name}"
+                analysis = copy.copy(tmpl)
+                analysis.update(data_val)  # set bam and bai
+                if targets and isinstance(bed_val, dict):
+                    if "bed" in bed_val:
+                        analysis["intervals_bed"] = bed_val["bed"]
+                    else:
+                        analysis["intervals_bed"] = targets
+                    analysis["split_column"] = bed_val["split_column"]
+                    if padding:
+                        analysis["padding"] = padding
+                else:
+                    analysis["intervals_bed"] = bed_val
+                analysis["output_prefix"] = prefix
+                summary["analyses"].append(analysis)
+
+        if indextools_only or not only_bed:
+            # for each data file we also run a job with no bed file specified -
+            # this will cause indextools to be used to generate the bed file
+            # from the index
+            prefix = f"{data_name}_indextools"
             analysis = copy.copy(tmpl)
             analysis.update(data_val)  # set bam and bai
-            if targets and isinstance(bed_val, dict):
-                if "bed" in bed_val:
-                    analysis["intervals_bed"] = bed_val["bed"]
-                else:
-                    analysis["intervals_bed"] = targets
-                analysis["split_column"] = bed_val["split_column"]
+            if targets:
+                analysis["targets_bed"] = targets
+                analysis["split_column"] = 4
                 if padding:
                     analysis["padding"] = padding
-            else:
-                analysis["intervals_bed"] = bed_val
             analysis["output_prefix"] = prefix
             summary["analyses"].append(analysis)
-
-        # for each data file we also run a job with no bed file specified -
-        # this will cause indextools to be used to generate the bed file
-        # from the index
-        prefix = f"{data_name}_indextools"
-        analysis = copy.copy(tmpl)
-        analysis.update(data_val)  # set bam and bai
-        if targets:
-            analysis["targets_bed"] = targets
-            analysis["split_column"] = 4
-            if padding:
-                analysis["padding"] = padding
-        analysis["output_prefix"] = prefix
-        summary["analyses"].append(analysis)
 
     for analysis in tqdm.tqdm(summary["analyses"]):
         workflow_inputs = dict(
@@ -123,11 +134,20 @@ def launch(
 
 
 @main.command()
-def report(launch_summary: Optional[Path] = None, output: Optional[Path] = None):
+def report(
+    launch_summary: Optional[Path] = None,
+    created_after: Optional[str] = None,
+    output: Optional[Path] = None
+):
     if launch_summary:
         results = summarize_from_launch(launch_summary)
     else:
-        results = summarize_from_query()
+        if created_after:
+            try:
+                created_after = int(created_after)
+            except:
+                pass
+        results = summarize_from_query(created_after)
 
     with open_(output or STDOUT, "wt") as out:
         json.dump(results, out)
@@ -153,31 +173,32 @@ MSG_RE = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{6}).*")
 
 class DateCollector:
     def __init__(self):
-        self._start = None
-        self._end = None
+        self.start = None
+        self.end = None
 
     def __call__(self, msg):
         if msg["source"] == "APP" and msg["level"] == "STDOUT":
             m = MSG_RE.match(msg["msg"])
             if m:
                 d = datetime.strptime(m.group(1), "%Y-%m-%dT%H:%M:%S,%f")
-            if self._start is None:
-                self._start = d
-            elif self._end is None:
-                self._end = d
+            if self.start is None:
+                self.start = d
+            elif self.end is None:
+                self.end = d
             else:
                 raise RuntimeError("Unexpected date string")
 
     def duration_seconds(self) -> int:
-        return abs(self._start - self._end).seconds
+        return abs(self.start - self.end).seconds
 
 
-def summarize_from_query() -> dict:
+def summarize_from_query(created_after: Optional[Union[int, str]] = None) -> dict:
     summary = {}
     jobs = list(dxpy.find_jobs(
         name="^gatk_hc*",
         name_mode="regexp",
         state="done",
+        created_after=created_after,
         project=dxpy.PROJECT_CONTEXT_ID,
         describe=True
     ))
@@ -186,7 +207,10 @@ def summarize_from_query() -> dict:
         date_collector = DateCollector()
         client = DXJobLogStreamClient(job["id"], msg_callback=date_collector)
         client.connect()
-        summary[job["runInput"]["output_prefix"]] = date_collector.duration_seconds()
+        summary[job["runInput"]["output_prefix"]] = {
+            "start": str(date_collector.start),
+            "duration": date_collector.duration_seconds()
+        }
     return summary
 
 

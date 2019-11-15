@@ -10,6 +10,8 @@ workflow gatk {
     Int? split_column
     Int? padding
     String? output_prefix
+    Int? concurrent_intervals
+    Int? cpu_per_interval
     String docker_image
   }
 
@@ -26,6 +28,8 @@ workflow gatk {
         reference_fasta_targz = reference_fasta_targz,
         intervals_bed = intervals_bed,
         output_prefix = default_output_prefix,
+        concurrent_intervals = concurrent_intervals,
+        cpu_per_interval = cpu_per_interval,
         docker_image = docker_image
     }
   }
@@ -40,6 +44,8 @@ workflow gatk {
         split_column = select_first([split_column]),
         padding = padding,
         output_prefix = default_output_prefix,
+        concurrent_intervals = concurrent_intervals,
+        cpu_per_interval = cpu_per_interval,
         docker_image = docker_image
     }
   }
@@ -206,7 +212,7 @@ task haplotype_caller_split {
       -I ~{bam} \
       -L regions/'{}.intervals' \
       -O results/'{}.vcf.gz' \
-      ~{if defined(padding) then "--interval_padding " + padding else ""} \
+      ~{if defined(padding) then "--interval-padding " + padding else ""} \
       --native-pair-hmm-threads ~{default_cpu_per_interval}
 
   date -Ins

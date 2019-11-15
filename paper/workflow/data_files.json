@@ -40,6 +40,25 @@
       }
     }
   },
+  "exome_no_targets": {
+    "bam": {
+      "$dnanexus_link": "file-FfVqPv80v1J4bZfy3741Q2Vv"
+    },
+    "bai": {
+      "$dnanexus_link": "file-FfVv0gj0v1J1GKpg3K5GG9F6"
+    },
+    "beds": {
+      "split_chr": {
+        "$dnanexus_link": "file-FfQ83YQ0jfjQJQQqF1yXFgy2"
+      },
+      "split_n": {
+        "$dnanexus_link": "file-Ff8fJP80jfjY2x479g8kpJVp"
+      },
+      "split_50Mb": {
+        "$dnanexus_link": "file-FfV5kX00jfjpQ3YkKk9VJgvY"
+      }
+    }
+  },
   "targeted_dna": {
     "bam": {
       "$dnanexus_link": "file-FfV8g580jfjkFV5g06fVz6qx"
@@ -89,7 +108,7 @@
       "$dnanexus_link": "file-FfXFpQ00F29GzYX2FPJ2K13F"
     },
     "targets": {
-      "$dnanexus_link": "file-FfXFz2j0jfjf0JzPFgyf428f"
+      "$dnanexus_link": "file-FfY0zgj0jfjqG0B3FJpzg5Gg"
     },
     "beds": {
       "split_chr": {
@@ -97,7 +116,7 @@
       },
       "split_n": {
         "bed": {
-          "$dnanexus_link": "file-FfXG0380jfjyfBf0GgbP1P7J"
+          "$dnanexus_link": "file-FfY117Q0jfjQfPG3P4XykqKx"
         },
         "split_column": 4
       }

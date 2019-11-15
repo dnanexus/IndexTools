@@ -167,3 +167,19 @@ def replace_suffix(path: Path, new_suffix: str) -> Path:
     """
     parts = split_path(path)
     return parts[0] / (parts[1] + new_suffix)
+
+
+def safe_divide_ceil(numerator, denominator):
+    # Python3 handles arbitrarily large integers, but not floats. To avoid overflowing
+    # floats, we use divmod to divide two integers, and add one to the result if the
+    # remainder is greater than zero.
+    #
+    # Other options would be:
+    # * Store volume as a scaled-down float
+    # * Use integer division
+    # * Check if volume is larger than sys.float_info.max before dividing, and
+    #   if so, scale it down before division and then back up after division
+    result, remainder = divmod(numerator, denominator)
+    if remainder > 0:
+        result += 1
+    return result

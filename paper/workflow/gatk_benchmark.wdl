@@ -14,6 +14,8 @@ workflow gatk_benchmark {
     Int? split_column
     Int? padding
     String output_prefix
+    Int? gatk_concurrent_intervals
+    Int? gatk_cpu_per_interval
     String? indextools_docker_image
     String? gatk_docker_image
   }
@@ -62,6 +64,8 @@ workflow gatk_benchmark {
       split_column = split_column,
       padding = padding,
       output_prefix = output_prefix,
+      concurrent_intervals = gatk_concurrent_intervals,
+      cpu_per_interval = gatk_cpu_per_interval,
       docker_image = default_gatk_docker_image
   }
 
@@ -100,9 +104,11 @@ task indextools_partition {
     File? targets_bed
     String? output_prefix
     String docker_image
+    Int? memory_gb
   }
 
   String default_output_prefix = select_first([output_prefix, basename(bai, ".bam.bai")])
+  Int default_memory_gb = select_first([memory_gb, 8])
 
   command <<<
   indextools partition -I ~{bai} \
@@ -118,5 +124,6 @@ task indextools_partition {
 
   runtime {
     docker: docker_image
+    memory: "${default_memory_gb} GB"
   }
 }

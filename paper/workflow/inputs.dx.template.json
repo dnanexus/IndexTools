@@ -6,6 +6,9 @@
     "$dnanexus_link": "file-Ff77Z4j0jfjy967QPqP0003b"
   },
   "reference_genome_id": "GRCh38.no_alt_analysis_set",
+  "padding": 200,
+  "gatk_concurrent_intervals": 36,
+  "gatk_cpu_per_interval": 1,
   "indextools_docker_image": "dx://file-FfXy1100jfjXj6922gK2y6x1",
   "gatk_docker_image": "dx://file-FfKF1k00jfjxbyXqB7zzgBz0"
 }

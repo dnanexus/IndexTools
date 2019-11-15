@@ -1,0 +1,17 @@
+{
+  "Exome": {
+    "Ns": 663,
+    "chr": 794,
+    "indextools": 541
+  },
+  "TruSight_DNA": {
+    "Ns": 575,
+    "chr": 615,
+    "indextools": 372
+  },
+  "TruSight_RNA": {
+    "Ns": 211,
+    "chr": 206,
+    "indextools": 168
+  }
+}
