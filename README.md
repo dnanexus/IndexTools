@@ -43,11 +43,17 @@ pip install indextools
 The `partition` command processes a BAM index file and generates a file in BED format that contains intervals that are roughly equal in "[volume](#volume)." This partition BAM file can be used for more efficient parallelization of secondary analysis tools (as opposed to parallelizing by chromosome or by uniform windows).
 
 ```bash
-# Generate a BED with 10 partitions
+# Generate a BED with 10 partitions of a BAM file
 indextools partition -I tests/data/small.bam.bai \
   -z tests/data/contig_sizes.txt \
   -n 10 \
   -o small.partitions.bed
+  
+# Partition a VCF
+indextools partition -I tests/data/big.vcf.gz.tbi \
+  -z tests/data/contig_sizes.txt \
+  -n 10 \
+  -o big.partitions.bed
 ```
 
 ## Limitations
