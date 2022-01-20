@@ -1,0 +1,56 @@
+
+paper/data:
+drwxr-xr-x  jdidion  staff    -   Tue Oct 15 15:48:42 2019  beds
+drwxr-xr-x  jdidion  staff    -   Mon Oct 14 11:27:27 2019  targets
+.rw-r--r--  jdidion  staff  8 KB  Fri Oct 11 06:18:18 2019  GRCh38.no_alt_analysis_set.fa.fai
+
+paper/data/beds:
+.rw-r--r--  jdidion  staff    6.6 MB  Tue Oct 15 15:44:40 2019  exome_indextools.bed
+.rw-r--r--  jdidion  staff   10.5 KB  Fri Oct 11 06:42:17 2019  HG002.GRCh38.2x250.indextools.bed
+.rw-r--r--  jdidion  staff      9 MB  Fri Oct 11 06:18:32 2019  HG002.GRCh38.2x250.withrg.bam.bai
+.rw-r--r--  jdidion  staff    7.1 MB  Mon Oct 14 06:08:23 2019  HG002_remapped_markdup.bam.bai
+.rw-r--r--  jdidion  staff    2.6 MB  Mon Oct 14 08:19:14 2019  HG002_remapped_markdup.bed.gz
+.rw-r--r--  jdidion  staff  496.4 KB  Mon Oct 14 08:19:14 2019  HG002_remapped_markdup.bed.gz.tbi
+.rw-r--r--  jdidion  staff    784 B   Fri Oct 11 06:38:09 2019  README.md
+.rw-r--r--  jdidion  staff    4.7 KB  Fri Oct 11 06:38:09 2019  split_on_chr.bed
+.rw-r--r--  jdidion  staff      5 KB  Fri Oct 11 06:38:09 2019  split_on_Ns.bed
+.rw-r--r--  jdidion  staff    6.7 MB  Mon Oct 14 10:23:03 2019  split_on_Ns_exome.bed
+.rw-r--r--  jdidion  staff  137.4 KB  Mon Oct 14 11:24:19 2019  split_on_Ns_trusight_dna.bed
+.rw-r--r--  jdidion  staff  727.2 KB  Tue Oct 15 11:31:50 2019  split_on_Ns_trusight_rna.bed
+.rw-r--r--  jdidion  staff   10.1 KB  Mon Oct 14 10:21:56 2019  split_on_Ns_wIDs.bed
+.rw-r--r--  jdidion  staff   76.5 KB  Fri Oct 11 06:38:09 2019  split_windows_1Mb.bed
+.rw-r--r--  jdidion  staff   76.5 KB  Sat Oct 12 16:07:34 2019  split_windows_50Mb.bed
+
+paper/data/targets:
+drwxr-xr-x  jdidion  staff        -   Mon Oct 14 10:43:40 2019  ExomeSureSelectv05
+drwxr-xr-x  jdidion  staff        -   Mon Oct 14 10:49:45 2019  TruSight170
+drwxr-xr-x  jdidion  staff        -   Tue Oct 15 11:26:44 2019  TruSightRNA
+.rw-r--r--  jdidion  staff  222.3 KB  Tue Dec 31 23:08:46 2013  hg19ToHg38.over.chain.gz
+
+paper/data/targets/ExomeSureSelectv05:
+.rw-r--r--  jdidion  staff   85.4 MB  Mon Oct 14 06:35:48 2019  Exome-Agilent-raw-noalt.bed
+.rw-r--r--  jdidion  staff   86.5 MB  Mon Oct 14 06:28:19 2019  Exome-Agilent-raw.bed
+.rw-r--r--  jdidion  staff  228.1 KB  Mon Oct 14 06:28:19 2019  Exome-Agilent-raw.bed.unmap
+.rw-r--r--  jdidion  staff    3.4 MB  Mon Oct 14 06:39:26 2019  Exome-Agilent-SureSelect-v05-hg38-merged.bed
+.rw-r--r--  jdidion  staff   85.4 MB  Mon Oct 14 06:36:05 2019  Exome-Agilent-SureSelect-v05-hg38.bed
+.rw-r--r--  jdidion  staff    975 B   Mon Oct 14 10:43:40 2019  liftover.sh
+.rw-r--r--  jdidion  staff   81.9 MB  Mon Oct 14 06:28:15 2019  wex_Agilent_SureSelect_v05_b37.baits.slop50.merged.list
+
+paper/data/targets/TruSight170:
+.rwxr-xr-x  jdidion  staff    503 B   Mon Oct 14 10:49:45 2019  liftover.sh
+.rw-r--r--  jdidion  staff   71.4 KB  Mon Oct 14 10:49:48 2019  trusight-tumor-170-dna-manifest-file.bed
+.rw-r--r--  jdidion  staff  175.5 KB  Wed Mar 22 10:48:32 2017  trusight-tumor-170-dna-manifest-file.txt
+.rw-r--r--  jdidion  staff   46.1 KB  Thu Apr 27 22:42:27 2017  trusight-tumor-170-dna-manifest-file.zip
+.rw-r--r--  jdidion  staff   46.1 KB  Fri Mar 31 16:23:10 2017  trusight-tumor-170-dna-manifest-file.zip.1
+.rw-r--r--  jdidion  staff   71.4 KB  Mon Oct 14 10:49:49 2019  trusight-tumor-170-GRCh38.bed
+.rw-r--r--  jdidion  staff      0 B   Mon Oct 14 10:49:49 2019  trusight-tumor-170-GRCh38.bed.unmap
+
+paper/data/targets/TruSightRNA:
+.rw-r--r--  jdidion  staff      0 B   Tue Oct 15 11:26:44 2019  foo.bed
+.rwxr-xr-x  jdidion  staff    353 B   Mon Oct 14 11:31:06 2019  liftover.sh
+.rwxr-xr-x  jdidion  staff  798.2 KB  Tue Jan 26 08:42:44 2016  PanCancerTargetRegions.bed
+.rw-r--r--  jdidion  staff  379.5 KB  Tue Oct 15 11:27:43 2019  trusight-tumor-rna-GRCh38-merged.bed
+.rw-r--r--  jdidion  staff  490.5 KB  Tue Oct 15 11:19:57 2019  trusight-tumor-rna-GRCh38-uniq.bed
+.rw-r--r--  jdidion  staff  799.2 KB  Mon Oct 14 11:31:12 2019  trusight-tumor-rna-GRCh38.bed
+.rw-r--r--  jdidion  staff     72 B   Mon Oct 14 11:31:12 2019  trusight-tumor-rna-GRCh38.bed.unmap
+.rw-r--r--  jdidion  staff  491.8 KB  Tue Oct 15 11:25:31 2019  trusight-tumor-rna-GRCh38.bed3
