@@ -49,8 +49,8 @@ def split(
         output_dir:
         contig_sizes: A file with the sizes of all the contigs in the index;
             only necessary if the primary file is not specified, or if it does not
-            have sequence information in its header. This is a two-column tab-delimited
-            file ({contig_name}\t{contig_size}).
+            have sequence information in its header. This is a tab-delimited file
+            where the first two columns are ({contig_name}\t{contig_size}).
     """
     if slop and len(slop) == 1:
         slop = slop[0], slop[0]
